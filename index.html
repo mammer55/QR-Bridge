@@ -66,7 +66,7 @@
     border-radius: 2px;
     padding: 7px 9px;
     font-family: inherit;
-    font-size: 13px;
+    font-size: 16px;
     color: #323130;
     background: #fff;
     resize: none;
@@ -75,7 +75,11 @@
     line-height: 1.5;
   }
   textarea:focus { border-color: #c2f6e5; box-shadow: 0 0 0 1px #c2f6e5; }
-  textarea::placeholder { color: #a19f9d; }
+  textarea::placeholder { color: #a19f9d; font-size: 14px; }
+  .send-row { display: flex; gap: 6px; margin-bottom: 8px; align-items: flex-start; }
+  .send-row textarea { margin-bottom: 0; flex: 1; }
+  .paste-btn { background: #f3f2f1; color: #323130; border: 1px solid #c8c6c4; border-radius: 2px; padding: 6px 10px; font-family: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; align-self: flex-start; margin-top: 0; }
+  .paste-btn:hover { background: #e1dfdd; }
 
   .btn {
     display: inline-block;
@@ -141,7 +145,8 @@
     padding: 9px;
     font-size: 12px;
     white-space: pre-wrap;
-    word-break: break-all;
+    overflow-wrap: break-word;
+    word-break: normal;
     max-height: 160px;
     overflow-y: auto;
     margin-bottom: 8px;
@@ -178,7 +183,10 @@
   <!-- Send -->
   <div id="send-card" class="card">
     <div class="section-label">Send to Phone</div>
-    <textarea id="send-text" placeholder="Paste here (Ctrl+V)"></textarea>
+    <div class="send-row">
+      <textarea id="send-text" placeholder="Paste here (Ctrl+V)"></textarea>
+      <button class="paste-btn" onclick="pasteClipboard()" title="Paste from clipboard">⌘ Paste</button>
+    </div>
     <button class="btn btn-primary" id="send-btn" onclick="sendClip()">Generate QR</button>
     <div id="send-msg" class="msg"></div>
   </div>
@@ -312,6 +320,16 @@
     await navigator.clipboard.writeText(fetchedText).catch(() => {});
     const btn = document.getElementById('copy-fetched-btn');
     btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy', 2000);
+  }
+
+  async function pasteClipboard() {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('send-text').value = text;
+    } catch(e) {
+      // iOS may deny clipboard read without user gesture — fallback: focus textarea
+      document.getElementById('send-text').focus();
+    }
   }
 
   function setMsg(id, text, cls) {
