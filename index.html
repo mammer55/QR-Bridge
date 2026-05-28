@@ -6,18 +6,30 @@
 <title>QR Bridge</title>
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAuElEQVR42u1Xyw2AIAylhCk4u4K7OKK7uIJn1tATCZAgLTRtD/YkmtfX9OOj4AqLMT5OwFJKkJ+9NHnL5aXJ2yCgJD/vC+3g2PbqPIv1TtnUAwjYFFNSTcGGL0ctoOd4Bfv3gN0mpNZ8FhuwTUQxCla9BKChA/8U2B1DDjnO70dnm1OwkgFTcsz2K6bIca/Go++2xYhTfMxeSNjkGDv3InJsogew2QOt1Swvqb7dViXJqymQDKLkegGXVVr9gSgFhAAAAABJRU5ErkJggg==">
 <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAADHUlEQVR42u3dzW0bMRSFUZJwFVynhfSSEtOLW8iabSgLLwIYsTGyZmSS95wCHGHwPj2Oop9avkHv/VbgnTFGffa/WQ08yUFUQ09yDNXQkxxDM/ys5sxZqwaf5G3QDD/J26AafJK3QTP8JG+DZvhJjqAZfpIjaIaf5Aia4Sc5gmb4SY6guUQka579Sd4CzfCTHIEjENHqWc/+v/+8upqllF8/fl76913nx67z+7dLNEcfko9CjkBEEwACcPwh9RhkA2ADQHQAjj+kHoNsAGwAEAAkBuD8T/J9gA2AIxAIAAQAAgABQIKX2R7Q1Z+outeun8BynW0AEAACAAGAACDMyyoP9OpXCWZ7VcR1tgFAACAAEAAIAAQAAgABgABAACAAEAAIAAQAAgABgABAACAAEAAIAAGAACDSMt8L5Ht7XGcbAAQAAgABgADgAdO9CrTrb3K5zjYACAAEAAIAAYAAQAAgABAACAAEABervfeby4ANAAIAAYAAQAAgABAACAAEAAIAAYAAQAAgABAACAAEAAIAAYAAQAAgABAATOG03wjzm1Nv/KJ9aAA8zyNPNkcCXf3vOwKBAEAAIAAQAAgABAACAAEgAJcAAYAAQAAgAEhx2u8E+zzAG58HsAFgGdN9IGa2Z1CbzQYAAYAAQAAgANjCMl+LcvWrMV6/FwABTwYzhO57gcA9AAgABAACAAGAAEAAIAAQAAgABAACAAHAObwdekGrf3ZhpsdvA+AIBAIAAYAAQAAgANjcMv8P4Ht7iA6Af67+Xp3Vv3fIEQgEAAIAAcAyN8F+k4unboAxRnUZSDTGqI5AuAcAAUBqAO4DSDz/2wDYAC4BAnAMIvD4YwMQz9uhF3T1W46TPnvRPloNsPvxp5RS/jvwvfebS8Xuw+8egHjtaCmw27P/pxtABOw+/I5AOAJ9tRxY/dn/0AYQAbsO/+EjkAjYcfjvugcQAbsN/903wSJgp+G/OwARsNPwl/LBWyGO8pYJVh38L28A24Bdhv/hDWAbsOrgn7IBbANWHv5TN4CNwCpD/5QAxMAKp4pvObYIglmO0X8BDOfm7PR5mWcAAAAASUVORK5CYII=">
-<link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjogIlFSIEJyaWRnZSIsICJzaG9ydF9uYW1lIjogIlFSIEJyaWRnZSIsICJzdGFydF91cmwiOiAiL1FSLUJyaWRnZS8iLCAiZGlzcGxheSI6ICJzdGFuZGFsb25lIiwgImJhY2tncm91bmRfY29sb3IiOiAiI2YzZjJmMSIsICJ0aGVtZV9jb2xvciI6ICIjYzJmNmU1IiwgImljb25zIjogW3sic3JjIjogImRhdGE6aW1hZ2UvcG5nO2Jhc2U2NCxpVkJPUncwS0dnb0FBQUFOU1VoRVVnQUFBTUFBQUFEQUNBWUFBQUJTM0d3SEFBQURIVWxFUVZSNDJ1M2R6VzBiTVJTRlVaSndGVnluaGZTU0V0T0xXOGlhYlNnTEx3SVlzVEd5Wm1TUzk1d0NIR0h3UGoyT29wOWF2a0h2L1ZiZ25URkdmZmEvV1EwOHlVRlVRMDl5RE5YUWt4eERNL3lzNXN4WnF3YWY1RzNRREQvSjI2QWFmSkszUVRQOEpHK0RadmhKanFBWmZwSWphSWFmNUFpYTRTYzVnbWI0U1k2Z3VVUWthNTc5U2Q0Q3pmQ1RISUVqRU5IcVdjLyt2Lys4dXBxbGxGOC9mbDc2OTEzbng2N3orN2RMTkVjZmtvOUNqa0JFRXdBQ2NQd2g5UmhrQTJBRFFIUUFqaitrSG9Oc0FHd0FFQUFrQnVEOFQvSjlnQTJBSXhBSUFBUUFBZ0FCUUlLWDJSN1ExWitvdXRldW44QnluVzBBRUFBQ0FBR0FBQ0RNeXlvUDlPcFhDV1o3VmNSMXRnRkFBQ0FBRUFBSUFBUUFBZ0FCZ0FCQUFDQUFFQUFJQUFRQUFnQUJnQUJBQUNBQUVBQUlBQUdBQUNEU010OEw1SHQ3WEdjYkFBUUFBZ0FCZ0FEZ0FkTzlDclRyYjNLNXpqWUFDQUFFQUFJQUFZQUFRQUFnQUJBQUNBQUVBQmVydmZlYnk0QU5BQUlBQVlBQVFBQWdBQkFBQ0FBRUFBSUFBWUFBUUFBZ0FCQUFDQUFFQUFJQUFZQUFRQUFnQUJBQVRPRzAzd2p6bTFOdi9LSjlhQUE4enlOUE5rY0NYZjN2T3dLQkFFQUFJQUFRQUFnQUJBQUNBQUVnQUpjQUFZQUFRQUFnQUVoeDJ1OEUrenpBRzU4SHNBRmdHZE45SUdhMloxQ2J6UVlBQVlBQVFBQWdBTmpDTWwrTGN2V3JNVjYvRndBQlR3WXpoTzU3Z2NBOUFBZ0FCQUFDQUFHQUFFQUFJQUFRQUFnQUJBQUNBQUhBT2J3ZGVrR3JmM1pocHNkdkErQUlCQUlBQVlBQVFBQWdBTmpjTXY4UDRIdDdpQTZBZjY3K1hwM1Z2M2ZJRVFnRUFBSUFBY0F5TjhGK2s0dW5ib0F4Um5VWlNEVEdxSTVBdUFjQUFVQnFBTzREU0R6LzJ3RFlBQzRCQW5BTUl2RDRZd01Rejl1aEYzVDFXNDZUUG52UlBsb05zUHZ4cDVSUy9qdnd2ZmViUzhYdXcrOGVnSGp0YUNtdzI3UC9weHRBQk93Ky9JNUFPQUo5dFJ4WS9kbi8wQVlRQWJzTy8rRWprQWpZY2ZqdnVnY1FBYnNOLzkwM3dTSmdwK0cvT3dBUnNOUHdsL0xCV3lHTzhwWUpWaDM4TDI4QTI0QmRodi9oRFdBYnNPcmduN0lCYkFOV0h2NVRONENOd0NwRC81UUF4TUFLcDRwdk9iWUlnbG1PMFg4QkRPZm03UFI1bVdjQUFBQUFTVVZPUks1Q1lJST0iLCAic2l6ZXMiOiAiMTkyeDE5MiIsICJ0eXBlIjogImltYWdlL3BuZyIsICJwdXJwb3NlIjogImFueSBtYXNrYWJsZSJ9LCB7InNyYyI6ICJkYXRhOmltYWdlL3BuZztiYXNlNjQsaVZCT1J3MEtHZ29BQUFBTlNVaEVVZ0FBQUNBQUFBQWdDQVlBQUFCemVucjBBQUFBdUVsRVFWUjQydTFYeXcyQUlBeWxoQ2s0dTRLN09LSzd1SUpuMXRBVENaQWdMVFJ0RC9Za210Zlg5T09qNEFxTE1UNU93RkpLa0orOU5Ibkw1YVhKMnlDZ0pEL3ZDKzNnMlBicVBJdjFUdG5VQXdqWUZGTlNUY0dHTDBjdG9PZDRCZnYzZ04wbXBOWjhGaHV3VFVReENsYTlCS0NoQS84VTJCMUREam5PNzBkbm0xT3drZ0ZUY3N6Mks2YkljYS9HbysrMnhZaFRmTXhlU05qa0dEdjNJbkpzb2dldzJRT3QxU3d2cWI3ZFZpWEpxeW1RREtMa2VnR1hWVnI5Z1NnRmhBQUFBQUJKUlU1RXJrSmdnZz09IiwgInNpemVzIjogIjMyeDMyIiwgInR5cGUiOiAiaW1hZ2UvcG5nIn1dfQ==">
-<meta name="theme-color" content="#c2f6e5">
 <meta name="application-name" content="QR Bridge">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="QR Bridge">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <style>
+  :root {
+    --accent:  #c2f6e5;
+    --accent2: #a8e8d0;
+    --bg:      #f3f2f1;
+    --surface: #ffffff;
+    --border:  #e1dfdd;
+    --input:   #c8c6c4;
+    --text:    #323130;
+    --muted:   #605e5c;
+    --dim:     #a19f9d;
+    --err:     #d83b01;
+    --code-bg: #f3f2f1;
+  }
+
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: #f3f2f1;
-    color: #323130;
+    background: var(--bg);
+    color: var(--text);
     font-family: 'Segoe UI', system-ui, sans-serif;
     font-size: 13px;
     min-height: 100vh;
@@ -25,62 +37,91 @@
     flex-direction: column;
     align-items: center;
     padding: 24px 16px 40px;
+    transition: background 0.2s, color 0.2s;
   }
-  .container { width: 100%; max-width: 440px; }
+  .container { width: 100%; max-width: 860px; }
 
+  /* HEADER */
   .header {
-    background: #c2f6e5;
+    background: var(--accent);
     border-radius: 4px 4px 0 0;
     padding: 10px 14px;
     display: flex;
     align-items: center;
-    gap: 8px;
     margin-bottom: 0;
   }
-  .header-title { color: #1a1a1a; font-size: 13px; font-weight: 600; }
-  .header-sub { color: rgba(0,0,0,0.5); font-size: 11px; margin-left: auto; }
+  .header-title { color: #1a1a1a; font-size: 13px; font-weight: 600; flex: 1; }
+  .theme-hint { font-size: 10px; color: rgba(0,0,0,0.4); cursor: pointer; user-select: none; padding: 2px 6px; border-radius: 2px; }
+  .theme-hint:hover { background: rgba(0,0,0,0.08); }
 
+  /* COLUMNS */
+  .cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 12px;
+    align-items: stretch;
+  }
+  .cols > div { display: flex; flex-direction: column; }
+  @media (max-width: 600px) { .cols { grid-template-columns: 1fr; } }
+
+  /* CARDS */
   .card {
-    background: #fff;
-    border: 1px solid #e1dfdd;
+    background: var(--surface);
+    border: 1px solid var(--border);
     border-top: none;
     padding: 16px;
-    margin-bottom: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
   }
-  .card:last-child { border-radius: 0 0 4px 4px; }
-  .card + .card { border-top: 1px solid #e1dfdd; }
+  .card:last-child { border-radius: 0 0 4px 4px; margin-bottom: 12px; }
 
   .section-label {
     font-size: 11px;
     font-weight: 600;
-    color: #605e5c;
+    color: var(--muted);
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
 
+  /* TEXTAREA */
   textarea {
     width: 100%;
-    height: 90px;
-    border: 1px solid #c8c6c4;
+    flex: 1;
+    min-height: 90px;
+    border: 1px solid var(--input);
     border-radius: 2px;
     padding: 7px 9px;
     font-family: inherit;
     font-size: 16px;
-    color: #323130;
-    background: #fff;
+    color: var(--text);
+    background: var(--surface);
     resize: none;
     outline: none;
     margin-bottom: 8px;
     line-height: 1.5;
   }
-  textarea:focus { border-color: #c2f6e5; box-shadow: 0 0 0 1px #c2f6e5; }
-  textarea::placeholder { color: #a19f9d; font-size: 14px; }
-  .send-row { display: flex; gap: 6px; margin-bottom: 8px; align-items: flex-start; }
-  .send-row textarea { margin-bottom: 0; flex: 1; }
-  .paste-btn { background: #f3f2f1; color: #323130; border: 1px solid #c8c6c4; border-radius: 2px; padding: 6px 10px; font-family: inherit; font-size: 12px; cursor: pointer; white-space: nowrap; align-self: flex-start; margin-top: 0; }
-  .paste-btn:hover { background: #e1dfdd; }
+  textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  textarea::placeholder { color: var(--dim); font-size: 14px; }
 
+  .send-row { display: flex; gap: 6px; margin-bottom: 8px; align-items: flex-start; flex: 1; }
+  .send-row textarea { margin-bottom: 0; }
+  .paste-btn {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--input);
+    border-radius: 2px;
+    padding: 6px 10px;
+    font-family: inherit;
+    font-size: 12px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .paste-btn:hover { background: var(--border); }
+
+  /* BUTTONS */
   .btn {
     display: inline-block;
     padding: 6px 16px;
@@ -92,37 +133,38 @@
     border: none;
     transition: background 0.1s;
   }
-  .btn-primary { background: #c2f6e5; color: #1a1a1a; }
-  .btn-primary:hover { background: #a8e8d0; }
-  .btn-primary:disabled { background: #c8c6c4; cursor: not-allowed; }
-  .btn-default { background: #fff; color: #323130; border: 1px solid #c8c6c4; }
-  .btn-default:hover { background: #f3f2f1; }
+  .btn-primary { background: var(--accent); color: #1a1a1a; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-primary:disabled { background: var(--input); cursor: not-allowed; }
+  .btn-default { background: var(--surface); color: var(--text); border: 1px solid var(--input); }
+  .btn-default:hover { background: var(--bg); }
   .btn-block { width: 100%; text-align: center; display: block; }
 
+  /* QR */
   .qr-center { display: flex; justify-content: center; padding: 12px 0 8px; }
-  .qr-center canvas, .qr-center img { border: 1px solid #e1dfdd; }
+  .qr-center canvas, .qr-center img { border: 1px solid var(--border); }
 
   .code-display {
     text-align: center;
     font-size: 28px;
     font-weight: 700;
     letter-spacing: 0.28em;
-    color: #323130;
+    color: var(--text);
     padding: 10px;
-    background: #f3f2f1;
-    border: 1px solid #e1dfdd;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
     border-radius: 2px;
     margin-bottom: 8px;
     text-indent: 0.28em;
   }
+  .timer { font-size: 11px; color: var(--dim); text-align: center; margin-bottom: 10px; }
+  .timer.warn { color: var(--err); }
 
-  .timer { font-size: 11px; color: #a19f9d; text-align: center; margin-bottom: 10px; }
-  .timer.warn { color: #d83b01; }
-
+  /* RECEIVE */
   .code-row { display: flex; gap: 6px; margin-bottom: 8px; }
   .code-input {
     flex: 1;
-    border: 1px solid #c8c6c4;
+    border: 1px solid var(--input);
     border-radius: 2px;
     padding: 6px 9px;
     font-family: inherit;
@@ -131,16 +173,16 @@
     letter-spacing: 0.2em;
     text-align: center;
     text-transform: uppercase;
-    color: #323130;
+    color: var(--text);
+    background: var(--surface);
     outline: none;
-    background: #fff;
   }
-  .code-input:focus { border-color: #c2f6e5; box-shadow: 0 0 0 1px #c2f6e5; }
-  .code-input::placeholder { font-size: 12px; font-weight: 400; letter-spacing: 0.06em; color: #a19f9d; }
+  .code-input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .code-input::placeholder { font-size: 12px; font-weight: 400; letter-spacing: 0.06em; color: var(--dim); }
 
   .result-box {
-    background: #f3f2f1;
-    border: 1px solid #e1dfdd;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
     border-radius: 2px;
     padding: 9px;
     font-size: 12px;
@@ -151,120 +193,324 @@
     overflow-y: auto;
     margin-bottom: 8px;
     line-height: 1.5;
-    color: #323130;
+    color: var(--text);
   }
 
   .msg { font-size: 11px; min-height: 18px; margin-top: 4px; }
-  .msg.err { color: #d83b01; }
+  .msg.err { color: var(--err); }
   .msg.ok  { color: #107c10; }
-  .msg.dim { color: #a19f9d; }
-
+  .msg.dim { color: var(--dim); }
   .hidden { display: none !important; }
 
-  .divider { border: none; border-top: 1px solid #e1dfdd; margin: 12px 0; }
+  /* ── THEME PANEL ── */
+  .theme-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1000;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .theme-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+    width: 340px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  }
+  .theme-panel-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .theme-close { cursor: pointer; font-size: 16px; color: var(--dim); line-height: 1; }
+  .theme-close:hover { color: var(--text); }
+
+  .presets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px; }
+  .preset {
+    border-radius: 4px;
+    height: 42px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: transform 0.1s, border-color 0.1s;
+  }
+  .preset:hover { transform: scale(1.06); }
+  .preset.active { border-color: var(--text); }
+  .preset-top { flex: 1; }
+  .preset-bot { height: 12px; }
+  .preset-label { font-size: 9px; text-align: center; margin-top: 4px; color: var(--muted); letter-spacing: 0.05em; }
+
+  .custom-row { display: flex; gap: 10px; margin-bottom: 14px; }
+  .custom-field { flex: 1; }
+  .custom-field label { display: block; font-size: 10px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
+  .custom-field input[type=color] {
+    width: 100%; height: 32px; border: 1px solid var(--input); border-radius: 2px; cursor: pointer; padding: 2px; background: var(--surface);
+  }
+
+  .theme-actions { display: flex; gap: 8px; }
+  .theme-actions .btn { flex: 1; font-size: 12px; padding: 7px; text-align: center; }
 </style>
 </head>
 <body>
 <div class="container">
 
-  <div class="header">
-    <div class="header-title">QR Bridge</div>
-    <div class="header-sub">90s · no login</div>
-  </div>
-
-  <!-- Retrieved view -->
-  <div id="retrieved-card" class="card hidden">
+  <!-- Retrieved view (phone opened a ?code= link) -->
+  <div id="retrieved-card" class="card hidden" style="border-top:1px solid var(--border);border-radius:4px;margin-bottom:12px;">
     <div class="section-label">Retrieved</div>
     <div id="retrieved-text" class="result-box">Loading...</div>
     <button class="btn btn-primary btn-block" onclick="copyRetrieved()">Copy</button>
     <div id="retrieved-msg" class="msg"></div>
   </div>
 
-  <!-- Send -->
-  <div id="send-card" class="card">
-    <div class="section-label">Send to Phone</div>
-    <div class="send-row">
-      <textarea id="send-text" placeholder="Paste here (Ctrl+V)"></textarea>
-      <button class="paste-btn" onclick="pasteClipboard()" title="Paste from clipboard">⌘ Paste</button>
-    </div>
-    <button class="btn btn-primary" id="send-btn" onclick="sendClip()">Generate QR</button>
-    <div id="send-msg" class="msg"></div>
+  <!-- Header -->
+  <div class="header">
+    <div class="header-title">QR Bridge</div>
+    <span class="theme-hint" onclick="openTheme()" title="Ctrl+Shift+T">⬤ Theme</span>
   </div>
 
-  <!-- QR result -->
-  <div id="qr-card" class="card hidden">
-    <div class="section-label">Scan with iPhone Camera</div>
-    <div class="qr-center" id="qr-wrap"></div>
-    <div class="code-display" id="code-big"></div>
-    <div class="timer" id="timer"></div>
-    <button class="btn btn-default btn-block" onclick="resetSend()">Clear</button>
-  </div>
-
-  <!-- Receive -->
-  <div id="receive-card" class="card">
-    <div class="section-label">Receive from Phone</div>
-    <div class="code-row">
-      <input class="code-input" id="code-input" maxlength="6" placeholder="Enter code"
-        oninput="this.value=this.value.replace(/[^a-fA-F0-9]/g,'').toUpperCase()"
-        onkeydown="if(event.key==='Enter')fetchClip()">
-      <button class="btn btn-primary" onclick="fetchClip()">Fetch</button>
+  <div class="cols">
+    <!-- Left: Send / QR -->
+    <div>
+      <div id="send-card" class="card">
+        <div class="section-label">Send to Phone</div>
+        <div class="send-row">
+          <textarea id="send-text" placeholder="Paste here (Ctrl+V)"></textarea>
+          <button class="paste-btn" onclick="pasteClipboard()">Paste</button>
+        </div>
+        <button class="btn btn-primary" id="send-btn" onclick="sendClip()">Generate QR</button>
+        <div id="send-msg" class="msg"></div>
+      </div>
+      <div id="qr-card" class="card hidden">
+        <div class="section-label">Scan with iPhone Camera</div>
+        <div class="qr-center" id="qr-wrap"></div>
+        <div class="code-display" id="code-big"></div>
+        <div class="timer" id="timer"></div>
+        <button class="btn btn-default btn-block" onclick="resetSend()">Clear</button>
+      </div>
     </div>
-    <div id="fetch-result" class="result-box hidden"></div>
-    <button id="copy-fetched-btn" class="btn btn-primary btn-block hidden" onclick="copyFetched()" style="margin-bottom:6px">Copy</button>
-    <div id="fetch-msg" class="msg"></div>
+
+    <!-- Right: Receive -->
+    <div>
+      <div id="receive-card" class="card">
+        <div class="section-label">Receive from Phone</div>
+        <div class="code-row">
+          <input class="code-input" id="code-input" maxlength="6" placeholder="Enter code"
+            oninput="this.value=this.value.replace(/[^a-fA-F0-9]/g,'').toUpperCase()"
+            onkeydown="if(event.key==='Enter')fetchClip()">
+          <button class="btn btn-primary" onclick="fetchClip()">Fetch</button>
+        </div>
+        <div id="fetch-result" class="result-box hidden"></div>
+        <button id="copy-fetched-btn" class="btn btn-primary btn-block hidden" onclick="copyFetched()" style="margin-bottom:6px">Copy</button>
+        <div id="fetch-msg" class="msg"></div>
+      </div>
+    </div>
   </div>
 
 </div>
+
+<!-- ── THEME PANEL ── -->
+<div class="theme-overlay hidden" id="theme-overlay" onclick="if(event.target===this)closeTheme()">
+  <div class="theme-panel">
+    <div class="theme-panel-title">
+      <span>Theme</span>
+      <span class="theme-close" onclick="closeTheme()">✕</span>
+    </div>
+
+    <div class="presets" id="preset-list"></div>
+
+    <div class="custom-row">
+      <div class="custom-field">
+        <label>Accent</label>
+        <input type="color" id="pick-accent" oninput="previewCustom()">
+      </div>
+      <div class="custom-field">
+        <label>Background</label>
+        <input type="color" id="pick-bg" oninput="previewCustom()">
+      </div>
+      <div class="custom-field">
+        <label>Surface</label>
+        <input type="color" id="pick-surface" oninput="previewCustom()">
+      </div>
+    </div>
+
+    <div class="theme-actions">
+      <button class="btn btn-primary" onclick="saveTheme()">Save</button>
+      <button class="btn btn-default" onclick="closeTheme()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <script>
+  /* ── SUPABASE ── */
   const SUPA_URL  = 'https://owcukwsouruowulhohyq.supabase.co';
   const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3Vrd3NvdXJ1b3d1bGhvaHlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODgzNzMsImV4cCI6MjA4NzU2NDM3M30.3njPBQGD1LEQc-h_j4VhAhngNzEH2p2gpqtRplqan_E';
   const BASE_URL  = 'https://mammer55.github.io/QR-Bridge/';
   const sb = window.supabase.createClient(SUPA_URL, SUPA_ANON);
   let countdown = null, fetchedText = '';
 
+  /* ── THEMES ── */
+  const PRESETS = [
+    { name: 'Mint',    accent:'#c2f6e5', accent2:'#a8e8d0', bg:'#f3f2f1', surface:'#ffffff', border:'#e1dfdd', input:'#c8c6c4', text:'#323130', muted:'#605e5c', dim:'#a19f9d', codebg:'#f3f2f1' },
+    { name: 'Dark',    accent:'#c2f6e5', accent2:'#a8e8d0', bg:'#1e1e1e', surface:'#2d2d2d', border:'#3d3d3d', input:'#555',    text:'#d4d4d4', muted:'#999',    dim:'#666',    codebg:'#252525' },
+    { name: 'Sky',     accent:'#bde0ff', accent2:'#9dcfff', bg:'#eef4fb', surface:'#ffffff', border:'#ccd9e8', input:'#b0c4d8', text:'#1a3a5c', muted:'#4a6a8c', dim:'#8aaccb', codebg:'#e8f0f8' },
+    { name: 'Peach',   accent:'#ffd4b0', accent2:'#ffbf8e', bg:'#fdf5ef', surface:'#ffffff', border:'#e8d5c8', input:'#d4b8a8', text:'#3d2b1f', muted:'#7a5a4a', dim:'#b89080', codebg:'#f5ede6' },
+    { name: 'Mono',    accent:'#d0d0d0', accent2:'#b8b8b8', bg:'#f8f8f8', surface:'#ffffff', border:'#e0e0e0', input:'#c8c8c8', text:'#1a1a1a', muted:'#606060', dim:'#a0a0a0', codebg:'#f0f0f0' },
+  ];
+
+  function applyTheme(t) {
+    const r = document.documentElement.style;
+    r.setProperty('--accent',  t.accent);
+    r.setProperty('--accent2', t.accent2);
+    r.setProperty('--bg',      t.bg);
+    r.setProperty('--surface', t.surface);
+    r.setProperty('--border',  t.border);
+    r.setProperty('--input',   t.input);
+    r.setProperty('--text',    t.text);
+    r.setProperty('--muted',   t.muted);
+    r.setProperty('--dim',     t.dim);
+    r.setProperty('--code-bg', t.codebg);
+  }
+
+  function loadSavedTheme() {
+    try {
+      const saved = localStorage.getItem('qrbridge-theme');
+      if (saved) applyTheme(JSON.parse(saved));
+    } catch(e) {}
+  }
+
+  function getSavedThemeName() {
+    try {
+      const saved = localStorage.getItem('qrbridge-theme-name');
+      return saved || 'Mint';
+    } catch(e) { return 'Mint'; }
+  }
+
+  /* ── THEME PANEL ── */
+  function buildPresets() {
+    const list = document.getElementById('preset-list');
+    const active = getSavedThemeName();
+    list.innerHTML = PRESETS.map(p => `
+      <div>
+        <div class="preset ${p.name===active?'active':''}" onclick="selectPreset('${p.name}')"
+          style="background:${p.bg}">
+          <div class="preset-top" style="background:${p.surface}; border-bottom:2px solid ${p.border}"></div>
+          <div class="preset-bot" style="background:${p.accent}"></div>
+        </div>
+        <div class="preset-label">${p.name}</div>
+      </div>
+    `).join('');
+  }
+
+  let pendingTheme = null;
+
+  function selectPreset(name) {
+    const t = PRESETS.find(p => p.name === name);
+    if (!t) return;
+    pendingTheme = { ...t, _name: name };
+    applyTheme(t);
+    document.getElementById('pick-accent').value  = t.accent;
+    document.getElementById('pick-bg').value      = t.bg;
+    document.getElementById('pick-surface').value = t.surface;
+    document.querySelectorAll('.preset').forEach((el,i) => {
+      el.classList.toggle('active', PRESETS[i].name === name);
+    });
+  }
+
+  function previewCustom() {
+    const accent  = document.getElementById('pick-accent').value;
+    const bg      = document.getElementById('pick-bg').value;
+    const surface = document.getElementById('pick-surface').value;
+    // derive accent2 by darkening slightly
+    pendingTheme = { ...( pendingTheme || PRESETS[0] ), accent, accent2: accent, bg, surface, codebg: bg, _name: 'Custom' };
+    applyTheme(pendingTheme);
+    document.querySelectorAll('.preset').forEach(el => el.classList.remove('active'));
+  }
+
+  function openTheme() {
+    buildPresets();
+    const saved = JSON.parse(localStorage.getItem('qrbridge-theme') || JSON.stringify(PRESETS[0]));
+    document.getElementById('pick-accent').value  = saved.accent  || PRESETS[0].accent;
+    document.getElementById('pick-bg').value      = saved.bg      || PRESETS[0].bg;
+    document.getElementById('pick-surface').value = saved.surface || PRESETS[0].surface;
+    pendingTheme = null;
+    document.getElementById('theme-overlay').classList.remove('hidden');
+  }
+
+  function closeTheme() {
+    document.getElementById('theme-overlay').classList.add('hidden');
+    loadSavedTheme(); // revert any preview
+  }
+
+  function saveTheme() {
+    if (!pendingTheme) { closeTheme(); return; }
+    const { _name, ...themeData } = pendingTheme;
+    localStorage.setItem('qrbridge-theme', JSON.stringify(themeData));
+    localStorage.setItem('qrbridge-theme-name', _name || 'Custom');
+    document.getElementById('theme-overlay').classList.add('hidden');
+  }
+
+  /* ── KEYBOARD SHORTCUT ── */
+  document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.shiftKey && e.key === 'T') { e.preventDefault(); openTheme(); }
+    if (e.key === 'Escape') closeTheme();
+  });
+
+  /* ── INIT ── */
   window.addEventListener('load', () => {
+    loadSavedTheme();
     const code = new URLSearchParams(window.location.search).get('code');
     if (code) {
-      ['send-card','qr-card','receive-card'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById('send-card').classList.add('hidden');
+      document.getElementById('qr-card').classList.add('hidden');
+      document.getElementById('receive-card').classList.add('hidden');
+      document.querySelector('.header').classList.add('hidden');
+      document.querySelector('.cols').classList.add('hidden');
       document.getElementById('retrieved-card').classList.remove('hidden');
       loadRetrieved(code.toLowerCase());
     }
   });
 
+  /* ── RETRIEVED ── */
   async function loadRetrieved(code) {
     try {
       const { data, error } = await sb.from('clips').select('content').eq('id', code).single();
       const el = document.getElementById('retrieved-text');
-      const msg = document.getElementById('retrieved-msg');
       if (error || !data) {
         el.textContent = 'Not found or expired.';
-        msg.textContent = 'Codes expire 90 seconds after creation.';
-        msg.className = 'msg err';
+        document.getElementById('retrieved-msg').textContent = 'Codes expire 90 seconds after creation.';
+        document.getElementById('retrieved-msg').className = 'msg err';
       } else {
         el.textContent = data.content;
-        msg.className = 'msg';
       }
     } catch(e) { document.getElementById('retrieved-text').textContent = 'Network error.'; }
   }
 
   async function copyRetrieved() {
-    const text = document.getElementById('retrieved-text').textContent;
-    await navigator.clipboard.writeText(text).catch(() => {});
+    await navigator.clipboard.writeText(document.getElementById('retrieved-text').textContent).catch(()=>{});
     const btn = document.querySelector('#retrieved-card .btn');
-    btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy', 2000);
+    btn.textContent = 'Copied'; setTimeout(()=>btn.textContent='Copy', 2000);
   }
 
+  /* ── SEND ── */
   async function sendClip() {
     const text = document.getElementById('send-text').value.trim();
     const btn = document.getElementById('send-btn');
-    if (!text) { setMsg('send-msg', 'Nothing to send.', 'err'); return; }
+    if (!text) { setMsg('send-msg','Nothing to send.','err'); return; }
     btn.disabled = true; btn.textContent = 'Saving...';
     try {
       const { data, error } = await sb.from('clips').insert({ content: text }).select('id').single();
       if (error) throw error;
       showQR(data.id);
     } catch(e) {
-      setMsg('send-msg', e.message || 'Error.', 'err');
+      setMsg('send-msg', e.message||'Error.','err');
       btn.disabled = false; btn.textContent = 'Generate QR';
     }
   }
@@ -274,16 +520,16 @@
     document.getElementById('qr-card').classList.remove('hidden');
     const wrap = document.getElementById('qr-wrap');
     wrap.innerHTML = '';
-    new QRCode(wrap, { text: BASE_URL + '?code=' + id, width: 200, height: 200, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.M });
+    new QRCode(wrap, { text: BASE_URL+'?code='+id, width:200, height:200, colorDark:'#000', colorLight:'#fff', correctLevel:QRCode.CorrectLevel.M });
     document.getElementById('code-big').textContent = id.toUpperCase();
     let s = 90;
     const t = document.getElementById('timer');
     clearInterval(countdown);
-    countdown = setInterval(() => {
+    countdown = setInterval(()=>{
       s--;
       t.textContent = s > 0 ? `Expires in ${s}s` : 'Expired';
       t.className = s <= 20 ? 'timer warn' : 'timer';
-      if (s <= 0) { clearInterval(countdown); wrap.style.opacity = '0.3'; }
+      if (s <= 0) { clearInterval(countdown); wrap.style.opacity='0.3'; }
     }, 1000);
     t.textContent = `Expires in ${s}s`;
   }
@@ -295,47 +541,46 @@
     const btn = document.getElementById('send-btn');
     btn.disabled = false; btn.textContent = 'Generate QR';
     document.getElementById('send-text').value = '';
-    setMsg('send-msg', '', '');
+    setMsg('send-msg','','');
   }
 
+  /* ── FETCH ── */
   async function fetchClip() {
     const code = document.getElementById('code-input').value.trim().toLowerCase();
-    if (!code || code.length < 4) { setMsg('fetch-msg', 'Enter the code.', 'err'); return; }
-    setMsg('fetch-msg', 'Fetching...', 'dim');
+    if (!code||code.length<4) { setMsg('fetch-msg','Enter the code.','err'); return; }
+    setMsg('fetch-msg','Fetching...','dim');
     document.getElementById('fetch-result').classList.add('hidden');
     document.getElementById('copy-fetched-btn').classList.add('hidden');
     try {
       const { data, error } = await sb.from('clips').select('content').eq('id', code).single();
-      if (error || !data) { setMsg('fetch-msg', 'Not found or expired.', 'err'); return; }
+      if (error||!data) { setMsg('fetch-msg','Not found or expired.','err'); return; }
       fetchedText = data.content;
       const box = document.getElementById('fetch-result');
       box.textContent = fetchedText;
       box.classList.remove('hidden');
       document.getElementById('copy-fetched-btn').classList.remove('hidden');
-      setMsg('fetch-msg', '', '');
-    } catch(e) { setMsg('fetch-msg', 'Network error.', 'err'); }
+      setMsg('fetch-msg','','');
+    } catch(e) { setMsg('fetch-msg','Network error.','err'); }
   }
 
   async function copyFetched() {
-    await navigator.clipboard.writeText(fetchedText).catch(() => {});
+    await navigator.clipboard.writeText(fetchedText).catch(()=>{});
     const btn = document.getElementById('copy-fetched-btn');
-    btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy', 2000);
+    btn.textContent = 'Copied'; setTimeout(()=>btn.textContent='Copy', 2000);
   }
 
+  /* ── PASTE ── */
   async function pasteClipboard() {
     try {
       const text = await navigator.clipboard.readText();
       document.getElementById('send-text').value = text;
-    } catch(e) {
-      // iOS may deny clipboard read without user gesture — fallback: focus textarea
-      document.getElementById('send-text').focus();
-    }
+    } catch(e) { document.getElementById('send-text').focus(); }
   }
 
   function setMsg(id, text, cls) {
     const el = document.getElementById(id);
     el.textContent = text;
-    el.className = 'msg' + (cls ? ' ' + cls : '');
+    el.className = 'msg'+(cls?' '+cls:'');
   }
 </script>
 </body>
