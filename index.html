@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QR Bridge</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #f3f2f1;
+    color: #323130;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 13px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 40px;
+  }
+  .container { width: 100%; max-width: 440px; }
+
+  .header {
+    background: #c2f6e5;
+    border-radius: 4px 4px 0 0;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+  .header-title { color: #1a1a1a; font-size: 13px; font-weight: 600; }
+  .header-sub { color: rgba(0,0,0,0.5); font-size: 11px; margin-left: auto; }
+
+  .card {
+    background: #fff;
+    border: 1px solid #e1dfdd;
+    border-top: none;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .card:last-child { border-radius: 0 0 4px 4px; }
+  .card + .card { border-top: 1px solid #e1dfdd; }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #605e5c;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  textarea {
+    width: 100%;
+    height: 90px;
+    border: 1px solid #c8c6c4;
+    border-radius: 2px;
+    padding: 7px 9px;
+    font-family: inherit;
+    font-size: 13px;
+    color: #323130;
+    background: #fff;
+    resize: none;
+    outline: none;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  textarea:focus { border-color: #c2f6e5; box-shadow: 0 0 0 1px #c2f6e5; }
+  textarea::placeholder { color: #a19f9d; }
+
+  .btn {
+    display: inline-block;
+    padding: 6px 16px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 2px;
+    cursor: pointer;
+    border: none;
+    transition: background 0.1s;
+  }
+  .btn-primary { background: #c2f6e5; color: #1a1a1a; }
+  .btn-primary:hover { background: #a8e8d0; }
+  .btn-primary:disabled { background: #c8c6c4; cursor: not-allowed; }
+  .btn-default { background: #fff; color: #323130; border: 1px solid #c8c6c4; }
+  .btn-default:hover { background: #f3f2f1; }
+  .btn-block { width: 100%; text-align: center; display: block; }
+
+  .qr-center { display: flex; justify-content: center; padding: 12px 0 8px; }
+  .qr-center canvas, .qr-center img { border: 1px solid #e1dfdd; }
+
+  .code-display {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    color: #323130;
+    padding: 10px;
+    background: #f3f2f1;
+    border: 1px solid #e1dfdd;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    text-indent: 0.28em;
+  }
+
+  .timer { font-size: 11px; color: #a19f9d; text-align: center; margin-bottom: 10px; }
+  .timer.warn { color: #d83b01; }
+
+  .code-row { display: flex; gap: 6px; margin-bottom: 8px; }
+  .code-input {
+    flex: 1;
+    border: 1px solid #c8c6c4;
+    border-radius: 2px;
+    padding: 6px 9px;
+    font-family: inherit;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-align: center;
+    text-transform: uppercase;
+    color: #323130;
+    outline: none;
+    background: #fff;
+  }
+  .code-input:focus { border-color: #c2f6e5; box-shadow: 0 0 0 1px #c2f6e5; }
+  .code-input::placeholder { font-size: 12px; font-weight: 400; letter-spacing: 0.06em; color: #a19f9d; }
+
+  .result-box {
+    background: #f3f2f1;
+    border: 1px solid #e1dfdd;
+    border-radius: 2px;
+    padding: 9px;
+    font-size: 12px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    max-height: 160px;
+    overflow-y: auto;
+    margin-bottom: 8px;
+    line-height: 1.5;
+    color: #323130;
+  }
+
+  .msg { font-size: 11px; min-height: 18px; margin-top: 4px; }
+  .msg.err { color: #d83b01; }
+  .msg.ok  { color: #107c10; }
+  .msg.dim { color: #a19f9d; }
+
+  .hidden { display: none !important; }
+
+  .divider { border: none; border-top: 1px solid #e1dfdd; margin: 12px 0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="header">
+    <div class="header-title">QR Bridge</div>
+    <div class="header-sub">90s · no login</div>
+  </div>
+
+  <!-- Retrieved view -->
+  <div id="retrieved-card" class="card hidden">
+    <div class="section-label">Retrieved</div>
+    <div id="retrieved-text" class="result-box">Loading...</div>
+    <button class="btn btn-primary btn-block" onclick="copyRetrieved()">Copy</button>
+    <div id="retrieved-msg" class="msg"></div>
+  </div>
+
+  <!-- Send -->
+  <div id="send-card" class="card">
+    <div class="section-label">Send to Phone</div>
+    <textarea id="send-text" placeholder="Paste here (Ctrl+V)"></textarea>
+    <button class="btn btn-primary" id="send-btn" onclick="sendClip()">Generate QR</button>
+    <div id="send-msg" class="msg"></div>
+  </div>
+
+  <!-- QR result -->
+  <div id="qr-card" class="card hidden">
+    <div class="section-label">Scan with iPhone Camera</div>
+    <div class="qr-center" id="qr-wrap"></div>
+    <div class="code-display" id="code-big"></div>
+    <div class="timer" id="timer"></div>
+    <button class="btn btn-default btn-block" onclick="resetSend()">Clear</button>
+  </div>
+
+  <!-- Receive -->
+  <div id="receive-card" class="card">
+    <div class="section-label">Receive from Phone</div>
+    <div class="code-row">
+      <input class="code-input" id="code-input" maxlength="6" placeholder="Enter code"
+        oninput="this.value=this.value.replace(/[^a-fA-F0-9]/g,'').toUpperCase()"
+        onkeydown="if(event.key==='Enter')fetchClip()">
+      <button class="btn btn-primary" onclick="fetchClip()">Fetch</button>
+    </div>
+    <div id="fetch-result" class="result-box hidden"></div>
+    <button id="copy-fetched-btn" class="btn btn-primary btn-block hidden" onclick="copyFetched()" style="margin-bottom:6px">Copy</button>
+    <div id="fetch-msg" class="msg"></div>
+  </div>
+
+</div>
+<script>
+  const SUPA_URL  = 'https://owcukwsouruowulhohyq.supabase.co';
+  const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3Vrd3NvdXJ1b3d1bGhvaHlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODgzNzMsImV4cCI6MjA4NzU2NDM3M30.3njPBQGD1LEQc-h_j4VhAhngNzEH2p2gpqtRplqan_E';
+  const BASE_URL  = 'https://mammer55.github.io/QR-Bridge/';
+  const sb = window.supabase.createClient(SUPA_URL, SUPA_ANON);
+  let countdown = null, fetchedText = '';
+
+  window.addEventListener('load', () => {
+    const code = new URLSearchParams(window.location.search).get('code');
+    if (code) {
+      ['send-card','qr-card','receive-card'].forEach(id => document.getElementById(id).classList.add('hidden'));
+      document.getElementById('retrieved-card').classList.remove('hidden');
+      loadRetrieved(code.toLowerCase());
+    }
+  });
+
+  async function loadRetrieved(code) {
+    try {
+      const { data, error } = await sb.from('clips').select('content').eq('id', code).single();
+      const el = document.getElementById('retrieved-text');
+      const msg = document.getElementById('retrieved-msg');
+      if (error || !data) {
+        el.textContent = 'Not found or expired.';
+        msg.textContent = 'Codes expire 90 seconds after creation.';
+        msg.className = 'msg err';
+      } else {
+        el.textContent = data.content;
+        msg.className = 'msg';
+      }
+    } catch(e) { document.getElementById('retrieved-text').textContent = 'Network error.'; }
+  }
+
+  async function copyRetrieved() {
+    const text = document.getElementById('retrieved-text').textContent;
+    await navigator.clipboard.writeText(text).catch(() => {});
+    const btn = document.querySelector('#retrieved-card .btn');
+    btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy', 2000);
+  }
+
+  async function sendClip() {
+    const text = document.getElementById('send-text').value.trim();
+    const btn = document.getElementById('send-btn');
+    if (!text) { setMsg('send-msg', 'Nothing to send.', 'err'); return; }
+    btn.disabled = true; btn.textContent = 'Saving...';
+    try {
+      const { data, error } = await sb.from('clips').insert({ content: text }).select('id').single();
+      if (error) throw error;
+      showQR(data.id);
+    } catch(e) {
+      setMsg('send-msg', e.message || 'Error.', 'err');
+      btn.disabled = false; btn.textContent = 'Generate QR';
+    }
+  }
+
+  function showQR(id) {
+    document.getElementById('send-card').classList.add('hidden');
+    document.getElementById('qr-card').classList.remove('hidden');
+    const wrap = document.getElementById('qr-wrap');
+    wrap.innerHTML = '';
+    new QRCode(wrap, { text: BASE_URL + '?code=' + id, width: 200, height: 200, colorDark: '#000', colorLight: '#fff', correctLevel: QRCode.CorrectLevel.M });
+    document.getElementById('code-big').textContent = id.toUpperCase();
+    let s = 90;
+    const t = document.getElementById('timer');
+    clearInterval(countdown);
+    countdown = setInterval(() => {
+      s--;
+      t.textContent = s > 0 ? `Expires in ${s}s` : 'Expired';
+      t.className = s <= 20 ? 'timer warn' : 'timer';
+      if (s <= 0) { clearInterval(countdown); wrap.style.opacity = '0.3'; }
+    }, 1000);
+    t.textContent = `Expires in ${s}s`;
+  }
+
+  function resetSend() {
+    clearInterval(countdown);
+    document.getElementById('qr-card').classList.add('hidden');
+    document.getElementById('send-card').classList.remove('hidden');
+    const btn = document.getElementById('send-btn');
+    btn.disabled = false; btn.textContent = 'Generate QR';
+    document.getElementById('send-text').value = '';
+    setMsg('send-msg', '', '');
+  }
+
+  async function fetchClip() {
+    const code = document.getElementById('code-input').value.trim().toLowerCase();
+    if (!code || code.length < 4) { setMsg('fetch-msg', 'Enter the code.', 'err'); return; }
+    setMsg('fetch-msg', 'Fetching...', 'dim');
+    document.getElementById('fetch-result').classList.add('hidden');
+    document.getElementById('copy-fetched-btn').classList.add('hidden');
+    try {
+      const { data, error } = await sb.from('clips').select('content').eq('id', code).single();
+      if (error || !data) { setMsg('fetch-msg', 'Not found or expired.', 'err'); return; }
+      fetchedText = data.content;
+      const box = document.getElementById('fetch-result');
+      box.textContent = fetchedText;
+      box.classList.remove('hidden');
+      document.getElementById('copy-fetched-btn').classList.remove('hidden');
+      setMsg('fetch-msg', '', '');
+    } catch(e) { setMsg('fetch-msg', 'Network error.', 'err'); }
+  }
+
+  async function copyFetched() {
+    await navigator.clipboard.writeText(fetchedText).catch(() => {});
+    const btn = document.getElementById('copy-fetched-btn');
+    btn.textContent = 'Copied'; setTimeout(() => btn.textContent = 'Copy', 2000);
+  }
+
+  function setMsg(id, text, cls) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'msg' + (cls ? ' ' + cls : '');
+  }
+</script>
+</body>
+</html>
