@@ -578,7 +578,7 @@
       s--;
       t.textContent = s > 0 ? `Expires in ${s}s` : 'Expired';
       t.className = s <= 20 ? 'timer warn' : 'timer';
-      if (s <= 0) { clearInterval(countdown); wrap.style.opacity='0.3'; }
+      if (s <= 0) { clearInterval(countdown); resetSend(); }
     }, 1000);
     t.textContent = `Expires in ${s}s`;
   }
