@@ -125,6 +125,10 @@
   .custom-field input[type=color] { width: 100%; height: 32px; border: 1px solid var(--input); border-radius: 2px; cursor: pointer; padding: 2px; background: var(--surface); }
   .theme-actions { display: flex; gap: 8px; }
   .theme-actions .btn { margin-bottom: 0; }
+  .pull-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .pull-header .section-label { margin-bottom: 0; }
+  .auto-btn { font-size: 10px; padding: 2px 8px; border-radius: 10px; cursor: pointer; border: 1px solid var(--input); background: var(--surface); color: var(--dim); font-family: inherit; font-weight: 600; letter-spacing: 0.04em; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+  .auto-btn.active { background: var(--accent); color: #1a1a1a; border-color: var(--accent2); }
 </style>
 </head>
 <body>
@@ -148,7 +152,10 @@
     </div>
     <div>
       <div class="card">
-        <div class="section-label">Pull</div>
+        <div class="pull-header">
+          <div class="section-label">Pull</div>
+          <button id="auto-clip-btn" class="auto-btn" onclick="toggleAutoClip()" title="Auto-copy new clips to clipboard">Auto</button>
+        </div>
         <div class="poll-row">
           <div class="poll-dot" id="poll-dot"></div>
           <span class="poll-label" id="poll-label">Connecting…</span>
@@ -190,12 +197,41 @@
   let pulledText = '';
   let lastSeenId = null;
   let realtimeConnected = false;
+  let autoClipEnabled = localStorage.getItem('clip-auto') === '1';
+  // Text we last wrote via auto-copy; if clipboard still matches, we "own" it
+  let lastAutoCopied = null;
 
   window.addEventListener('load', () => {
     loadSavedTheme();
+    updateAutoClipBtn();
     startRealtime();
     startFallbackPoll();
   });
+
+  function toggleAutoClip() {
+    autoClipEnabled = !autoClipEnabled;
+    localStorage.setItem('clip-auto', autoClipEnabled ? '1' : '0');
+    updateAutoClipBtn();
+  }
+
+  function updateAutoClipBtn() {
+    const btn = document.getElementById('auto-clip-btn');
+    btn.classList.toggle('active', autoClipEnabled);
+    btn.title = autoClipEnabled ? 'Auto-copy ON — click to disable' : 'Auto-copy OFF — click to enable';
+  }
+
+  async function tryAutoCopy(text) {
+    if (!autoClipEnabled) return;
+    try {
+      const current = await navigator.clipboard.readText();
+      // Only write if we still own the clipboard (or it's our first auto-copy)
+      if (lastAutoCopied === null || current === lastAutoCopied) {
+        await navigator.clipboard.writeText(text);
+        lastAutoCopied = text;
+      }
+      // User copied something else externally — back off; next new clip will try again
+    } catch(_) {}
+  }
 
   // --- Realtime (primary delivery) ---
 
@@ -208,6 +244,7 @@
           pulledText = row.content;
           showPullResult(pulledText);
           flashDot();
+          tryAutoCopy(pulledText);
         }
       })
       .subscribe(status => {
@@ -239,6 +276,7 @@
         pulledText = data.content;
         showPullResult(pulledText);
         flashDot();
+        tryAutoCopy(pulledText);
       }
     } catch(_) {}
     if (!realtimeConnected) {
@@ -299,6 +337,7 @@
         pulledText = data.content;
         showPullResult(pulledText);
         setMsg('pull-msg', '', '');
+        tryAutoCopy(pulledText);
       }
     } catch(_) { setMsg('pull-msg', 'Network error.', 'err'); }
     btn.disabled = false; btn.textContent = 'Fetch Latest';
