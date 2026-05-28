@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <script>
-  var BUILD_VERSION = '1.2.0';
+  var BUILD_VERSION = '1.3.0';
   var stored = localStorage.getItem('qrb-version');
   if (stored && stored !== BUILD_VERSION) {
     localStorage.setItem('qrb-version', BUILD_VERSION);
@@ -72,12 +72,12 @@
   /* COLUMNS */
   .cols {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0,1fr) minmax(0,1fr);
     gap: 0 12px;
     align-items: stretch;
   }
-  .cols > div { display: flex; flex-direction: column; }
-  .cols > div .card { flex: 1; min-height: 100%; }
+  .cols > div { display: flex; flex-direction: column; min-width: 0; }
+  .cols > div .card { flex: 1; }
   @media (max-width: 600px) {
     body { padding: 12px 8px 32px; }
     .container { width: 100vw; padding: 0 8px; max-width: 100vw; }
@@ -133,8 +133,7 @@
   textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
   textarea::placeholder { color: var(--dim); font-size: 14px; }
 
-  .send-row { display: flex; gap: 6px; margin-bottom: 8px; align-items: stretch; flex: 1; }
-  .send-row textarea { margin-bottom: 0; }
+
   .paste-btn {
     background: var(--bg);
     color: var(--text);
@@ -142,11 +141,12 @@
     border-radius: 2px;
     padding: 6px 10px;
     font-family: inherit;
-    font-size: 12px;
+    font-size: 13px;
+    font-weight: 600;
     cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
-    align-self: flex-start;
+    display: block;
+    width: 100%;
+    text-align: center;
   }
   .paste-btn:hover { background: var(--border); }
 
@@ -217,12 +217,15 @@
     font-size: 12px;
     white-space: pre-wrap;
     overflow-wrap: break-word;
-    word-break: normal;
-    max-height: 160px;
+    word-break: break-word;
+    max-height: 200px;
     overflow-y: auto;
+    overflow-x: hidden;
     margin-bottom: 8px;
     line-height: 1.5;
     color: var(--text);
+    width: 100%;
+    max-width: 100%;
   }
 
   .msg { font-size: 11px; min-height: 18px; margin-top: 4px; }
@@ -301,7 +304,7 @@
 
   <!-- Header -->
   <div class="header">
-    <div class="header-title">QR Bridge <span id="version-badge" style="font-size:10px;font-weight:400;opacity:0.5;margin-left:6px">v1.2.0</span></div>
+    <div class="header-title">QR Bridge <span id="version-badge" style="font-size:10px;font-weight:400;opacity:0.5;margin-left:6px">v1.3.0</span></div>
     <span class="theme-hint" onclick="openTheme()" title="Ctrl+Shift+T">⬤ Theme</span>
   </div>
 
@@ -310,11 +313,9 @@
     <div>
       <div id="send-card" class="card">
         <div class="section-label" id="send-label">Send to Phone</div>
-        <div class="send-row">
-          <textarea id="send-text" placeholder="Paste here (Ctrl+V)"></textarea>
-          <button class="paste-btn" onclick="pasteClipboard()">Paste</button>
-        </div>
-        <button class="btn btn-primary" id="send-btn" onclick="sendClip()">Generate QR</button>
+        <textarea id="send-text" placeholder="Paste here (Ctrl+V)" style="margin-bottom:6px"></textarea>
+        <button class="paste-btn btn-block" onclick="pasteClipboard()" style="margin-bottom:6px">Paste from Clipboard</button>
+        <button class="btn btn-primary btn-block" id="send-btn" onclick="sendClip()">Generate QR</button>
         <div id="send-msg" class="msg"></div>
       </div>
       <div id="qr-card" class="card hidden">
