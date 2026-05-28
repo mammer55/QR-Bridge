@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script>
+  var BUILD_VERSION = '1.2.0';
+  var stored = localStorage.getItem('qrb-version');
+  if (stored && stored !== BUILD_VERSION) {
+    localStorage.setItem('qrb-version', BUILD_VERSION);
+    location.reload(true);
+  }
+  localStorage.setItem('qrb-version', BUILD_VERSION);
+</script>
 <meta charset="UTF-8">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -292,7 +301,7 @@
 
   <!-- Header -->
   <div class="header">
-    <div class="header-title">QR Bridge</div>
+    <div class="header-title">QR Bridge <span id="version-badge" style="font-size:10px;font-weight:400;opacity:0.5;margin-left:6px">v1.2.0</span></div>
     <span class="theme-hint" onclick="openTheme()" title="Ctrl+Shift+T">⬤ Theme</span>
   </div>
 
@@ -651,18 +660,5 @@
   }
 </script>
 
-<script>
-  /* ── VERSION CHECK ──
-     Change BUILD_VERSION whenever you push a new file.
-     The page will auto-detect the mismatch and reload once. */
-  const BUILD_VERSION = '1.2.0';
-  const STORED = localStorage.getItem('qrb-version');
-  if (STORED && STORED !== BUILD_VERSION) {
-    localStorage.setItem('qrb-version', BUILD_VERSION);
-    window.location.reload(true);
-  } else {
-    localStorage.setItem('qrb-version', BUILD_VERSION);
-  }
-</script>
 </body>
 </html>
