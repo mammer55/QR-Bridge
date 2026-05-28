@@ -299,10 +299,14 @@
   let pendingTheme = null;
 
   function buildPresets() {
-    const active = localStorage.getItem('clip-theme-name') || 'Mint';
-    document.getElementById('preset-list').innerHTML = PRESETS.map(p =>
-      '<div><div class="preset ' + (p.name===active?'active':'') + '" onclick="selectPreset('' + p.name + '')" style="background:' + p.bg + '"><div class="preset-top" style="background:' + p.surface + ';border-bottom:2px solid ' + p.border + '"></div><div class="preset-bot" style="background:' + p.accent + '"></div></div><div class="preset-label">' + p.name + '</div></div>'
-    ).join('');
+    var active = localStorage.getItem('clip-theme-name') || 'Mint';
+    document.getElementById('preset-list').innerHTML = PRESETS.map(function(p) {
+      var cls = p.name === active ? 'preset active' : 'preset';
+      return '<div><div class="' + cls + '" onclick="selectPreset(\'' + p.name + '\')" style="background:' + p.bg + '">' +
+        '<div class="preset-top" style="background:' + p.surface + ';border-bottom:2px solid ' + p.border + '"></div>' +
+        '<div class="preset-bot" style="background:' + p.accent + '"></div>' +
+        '</div><div class="preset-label">' + p.name + '</div></div>';
+    }).join('');
   }
 
   function selectPreset(name) {
