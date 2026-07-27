@@ -68,6 +68,14 @@ def main():
     except FileNotFoundError:
         print(f"No config at {CONFIG}; cannot send email.")
         sys.exit(1)
+    except json.JSONDecodeError as e:
+        print(f"Config at {CONFIG} is not valid JSON ({e}). Recreate it.")
+        sys.exit(1)
+
+    missing = [k for k in ("sender", "app_password", "recipient") if not cfg.get(k)]
+    if missing:
+        print(f"Config is missing: {', '.join(missing)}.")
+        sys.exit(1)
 
     days_left = max(0, 7 - int(age_days))
     msg = EmailMessage()
