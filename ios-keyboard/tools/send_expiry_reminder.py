@@ -92,9 +92,13 @@ def main():
         "That will rebuild and reinstall the app and reset this reminder.\n"
     )
 
+    # Gmail shows app passwords in spaced groups; the real password is 16 chars
+    # with no spaces, and copying can slip in a non-breaking space (\xa0).
+    app_password = "".join(cfg["app_password"].split())
+
     ctx = ssl.create_default_context()
     with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=ctx) as s:
-        s.login(cfg["sender"], cfg["app_password"])
+        s.login(cfg["sender"].strip(), app_password)
         s.send_message(msg)
 
     with open(LAST_REMINDED, "w") as f:
