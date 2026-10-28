@@ -28,12 +28,13 @@ npm start       live-server on port 3000, no browser
 
 Backend is a single Supabase table, `clips`, with columns `id`, `content`,
 `expires_at`, `created_at`, `source`. Project ref `owcukwsouruowulhohyq`, hardcoded
-in `index.html` along with the anon key. That key is public by design; access is
-governed by row level security in Supabase, so **never put anything secret in this
-repo and never assume the anon key protects the table**.
+in `index.html` along with the anon key. That key is public by design and anyone holding it
+can read and write the table, so **never put anything secret in this repo**. The
+encryption below is what protects clips, not the key or row level security.
 
-Pushed clips get `expires_at` 24 hours out and `source: 'pc'`. Every read filters on
-`expires_at > now()`, so expiry is enforced by the query, not by a cleanup job.
+Pushed clips get `expires_at` 24 hours out (a Supabase trigger clamps it to 15
+minutes) and `source: 'pc-to-mac'`, which only the Mac app reads. Every read filters
+on `expires_at > now()`.
 
 Delivery is two layered paths:
 
@@ -45,6 +46,18 @@ Delivery is two layered paths:
 
 Both paths dedupe on `lastSeenId`, so touching one and not the other causes clips to
 show twice.
+
+## Encryption (since 28 Oct 2026)
+
+Clips are encrypted in the browser before insert, in the `cb1` format documented in
+ClipBridge's `shared/cbcrypt.py`. The block between `// --- cb1 crypto` and
+`// --- end cb1 crypto ---` in `index.html` must match that file exactly; run
+`node test/cb1_compat.mjs` after touching either. The header's Locked / Unlocked
+button opens the passphrase panel. The key is a non extractable `CryptoKey`, kept in
+memory, or in IndexedDB when "Remember on this device" is ticked; the passphrase is
+never stored. Rows that do not decrypt are ignored. `ACCEPT_PLAINTEXT` is still true
+because the Mac's clips to the work PC stay plaintext until the Windows tray learns
+cb1; set it false after that.
 
 ## Auto copy is deliberately conservative
 

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <script>
-  var BUILD_VERSION = '2.2.1';
+  var BUILD_VERSION = '2.3.0';
   var stored = localStorage.getItem('clip-version');
   if (stored && stored !== BUILD_VERSION) {
     localStorage.setItem('clip-version', BUILD_VERSION);
@@ -128,6 +128,13 @@
   .pull-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .pull-header .section-label { margin-bottom: 0; }
   .auto-btn { font-size: 10px; padding: 2px 8px; border-radius: 10px; cursor: pointer; border: 1px solid var(--input); background: var(--surface); color: var(--dim); font-family: inherit; font-weight: 600; letter-spacing: 0.04em; transition: background 0.15s, color 0.15s, border-color 0.15s; }
+  .key-input {
+    width: 100%; border: 1px solid var(--input); border-radius: 2px; padding: 8px 10px;
+    font-family: inherit; font-size: 16px; color: var(--text); background: var(--surface);
+    outline: none; margin-bottom: 10px;
+  }
+  .key-input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+  .key-remember { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 14px; cursor: pointer; }
   .auto-btn.active { background: var(--accent); color: #1a1a1a; border-color: var(--accent2); }
 </style>
 </head>
@@ -136,8 +143,9 @@
   <div class="header">
     <div class="header-title">
       &#x1F4CB; Clip
-      <span class="header-ver">v2.1.0</span>
+      <span class="header-ver">v2.3.0</span>
     </div>
+    <button class="theme-btn" id="key-btn" onclick="openKey()">Locked</button>
     <button class="theme-btn" onclick="openTheme()" title="Ctrl+Shift+T">Theme</button>
   </div>
   <div class="cols">
@@ -189,6 +197,24 @@
   </div>
 </div>
 
+<div class="theme-overlay hidden" id="key-overlay" onclick="if(event.target===this)closeKey()">
+  <div class="theme-panel">
+    <div class="theme-panel-title">
+      <span>Passphrase</span>
+      <span class="theme-close" onclick="closeKey()">&#x2715;</span>
+    </div>
+    <input type="password" id="key-input" class="key-input" placeholder="Passphrase"
+           autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"
+           onkeydown="if(event.key==='Enter')saveKey()">
+    <label class="key-remember"><input type="checkbox" id="key-remember"> Remember on this device</label>
+    <div class="theme-actions">
+      <button class="btn btn-primary" id="key-save" onclick="saveKey()">Unlock</button>
+      <button class="btn btn-default" onclick="forgetKey()">Lock</button>
+    </div>
+    <div id="key-msg" class="msg"></div>
+  </div>
+</div>
+
 <script>
   const SUPA_URL  = 'https://owcukwsouruowulhohyq.supabase.co';
   const SUPA_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im93Y3Vrd3NvdXJ1b3d1bGhvaHlxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5ODgzNzMsImV4cCI6MjA4NzU2NDM3M30.3njPBQGD1LEQc-h_j4VhAhngNzEH2p2gpqtRplqan_E';
@@ -201,12 +227,182 @@
   // Text we last wrote via auto-copy; if clipboard still matches, we "own" it
   let lastAutoCopied = null;
 
-  window.addEventListener('load', () => {
+  window.addEventListener('load', async () => {
     loadSavedTheme();
     updateAutoClipBtn();
+    clipKey = await cbLoadKey();
+    updateKeyBtn();
     startRealtime();
     startFallbackPoll();
   });
+
+  // --- cb1 crypto: the same format as ClipBridge's shared/cbcrypt.py, which
+  // documents it. Change one and change the other. test/cb1_compat.mjs pulls
+  // this block out and checks it against the Python side. ---
+  const CB_PREFIX = 'cb1.';
+  const CB_SALT = new TextEncoder().encode('clipbridge/v1');
+  const CB_ROUNDS = 600000;
+  const CB_MAX_AGE_MS = 30 * 60 * 1000;
+  const CB_MAX_AHEAD_MS = 10 * 60 * 1000;
+
+  function cbNormalize(p) { return p.toLowerCase().split(/\s+/).filter(Boolean).join(' '); }
+
+  async function cbDeriveKey(passphrase) {
+    const enc = new TextEncoder();
+    const base = await crypto.subtle.importKey('raw', enc.encode(cbNormalize(passphrase)), 'PBKDF2', false, ['deriveKey']);
+    return crypto.subtle.deriveKey(
+      { name: 'PBKDF2', hash: 'SHA-256', salt: CB_SALT, iterations: CB_ROUNDS },
+      base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  }
+
+  function cbB64(bytes) {
+    let s = '';
+    for (let i = 0; i < bytes.length; i++) s += String.fromCharCode(bytes[i]);
+    return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+
+  function cbUnb64(text) {
+    let t = text.replace(/-/g, '+').replace(/_/g, '/');
+    while (t.length % 4) t += '=';
+    return Uint8Array.from(atob(t), c => c.charCodeAt(0));
+  }
+
+  async function cbEncrypt(key, text, source) {
+    const enc = new TextEncoder();
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const body = enc.encode(JSON.stringify({ v: 1, t: text, ts: Date.now() }));
+    const sealed = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: enc.encode(source || '') }, key, body);
+    return CB_PREFIX + cbB64(iv) + '.' + cbB64(new Uint8Array(sealed));
+  }
+
+  // The clip's text, or null for anything that is not a fresh cb1 clip
+  // sealed with this key for this source.
+  async function cbDecrypt(key, content, source) {
+    if (typeof content !== 'string' || !content.startsWith(CB_PREFIX)) return null;
+    try {
+      const [iv, sealed] = content.slice(CB_PREFIX.length).split('.');
+      const body = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: cbUnb64(iv), additionalData: new TextEncoder().encode(source || '') },
+        key, cbUnb64(sealed));
+      const payload = JSON.parse(new TextDecoder().decode(body));
+      const age = Date.now() - payload.ts;
+      if (payload.v !== 1 || age > CB_MAX_AGE_MS || age < -CB_MAX_AHEAD_MS) return null;
+      return payload.t;
+    } catch (_) { return null; }
+  }
+  // --- end cb1 crypto ---
+
+  // --- Passphrase ---
+  // The key is a non extractable CryptoKey: kept in memory for this tab, or
+  // in IndexedDB when remembered, so the passphrase itself is never stored.
+
+  // Clips to the work PC are still plaintext until its tray decrypts them.
+  // Set false once it does, so the page stops showing unencrypted clips too.
+  const ACCEPT_PLAINTEXT = true;
+  let clipKey = null;
+
+  function cbDb() {
+    return new Promise((resolve, reject) => {
+      const r = indexedDB.open('clip', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('keys');
+      r.onsuccess = () => resolve(r.result);
+      r.onerror = () => reject(r.error);
+    });
+  }
+
+  async function cbStoreKey(key) {
+    const db = await cbDb();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('keys', 'readwrite');
+      if (key) tx.objectStore('keys').put(key, 'clip'); else tx.objectStore('keys').delete('clip');
+      tx.oncomplete = resolve;
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async function cbLoadKey() {
+    try {
+      const db = await cbDb();
+      return await new Promise(resolve => {
+        const r = db.transaction('keys').objectStore('keys').get('clip');
+        r.onsuccess = () => resolve(r.result || null);
+        r.onerror = () => resolve(null);
+      });
+    } catch (_) { return null; }
+  }
+
+  function updateKeyBtn() {
+    document.getElementById('key-btn').textContent = clipKey ? 'Unlocked' : 'Locked';
+  }
+
+  function openKey() {
+    document.getElementById('key-overlay').classList.remove('hidden');
+    document.getElementById('key-input').value = '';
+    setMsg('key-msg', clipKey ? 'Unlocked on this device.' : '', 'dim');
+    document.getElementById('key-input').focus();
+  }
+
+  function closeKey() { document.getElementById('key-overlay').classList.add('hidden'); }
+
+  async function saveKey() {
+    const phrase = document.getElementById('key-input').value;
+    if (!cbNormalize(phrase)) return;
+    const btn = document.getElementById('key-save');
+    btn.disabled = true; btn.textContent = 'Unlocking…';
+    try {
+      const key = await cbDeriveKey(phrase);
+      // A fresh encrypted clip is the only thing that can tell a typo apart
+      // from the real passphrase, so check against one when there is one.
+      const { data } = await sb.from('clips').select('content, source')
+        .like('content', CB_PREFIX + '%')
+        .gt('expires_at', new Date().toISOString())
+        .order('created_at', { ascending: false }).limit(1);
+      if (data && data.length && await cbDecrypt(key, data[0].content, data[0].source) === null) {
+        setMsg('key-msg', 'That passphrase does not open the latest clip.', 'err');
+      } else {
+        clipKey = key;
+        await cbStoreKey(document.getElementById('key-remember').checked ? key : null);
+        updateKeyBtn();
+        closeKey();
+        fetchLatest();
+      }
+    } catch (e) { setMsg('key-msg', e.message || 'Error.', 'err'); }
+    document.getElementById('key-input').value = '';
+    btn.disabled = false; btn.textContent = 'Unlock';
+  }
+
+  async function forgetKey() {
+    clipKey = null;
+    await cbStoreKey(null);
+    updateKeyBtn();
+    clearPull();
+    closeKey();
+  }
+
+  // Turns a row into what the pull side shows: { text }, { locked } when an
+  // encrypted clip waits for the passphrase, or null for a row to ignore
+  // (a forgery, a replay, a clip under some other passphrase).
+  async function openRow(row) {
+    if (!row || !row.content) return null;
+    if (!row.content.startsWith(CB_PREFIX)) return ACCEPT_PLAINTEXT ? { text: row.content } : null;
+    if (!clipKey) return { locked: true };
+    const text = await cbDecrypt(clipKey, row.content, row.source);
+    return text === null ? null : { text };
+  }
+
+  async function takeRow(row) {
+    const opened = await openRow(row);
+    if (!opened) return false;
+    if (opened.locked) {
+      setMsg('pull-msg', 'Encrypted clip waiting. Unlock to read it.', 'dim');
+      return true;
+    }
+    pulledText = opened.text;
+    showPullResult(pulledText);
+    setMsg('pull-msg', '', '');
+    tryAutoCopy(pulledText);
+    return true;
+  }
 
   function toggleAutoClip() {
     autoClipEnabled = !autoClipEnabled;
@@ -241,10 +437,7 @@
         const row = payload.new;
         if (row && row.id !== lastSeenId && new Date(row.expires_at) > new Date()) {
           lastSeenId = row.id;
-          pulledText = row.content;
-          showPullResult(pulledText);
-          flashDot();
-          tryAutoCopy(pulledText);
+          takeRow(row).then(shown => { if (shown) flashDot(); });
         }
       })
       .subscribe(status => {
@@ -267,16 +460,13 @@
   async function fallbackPoll() {
     try {
       const { data } = await sb.from('clips')
-        .select('id, content')
+        .select('id, content, source')
         .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: false })
         .limit(1).single();
       if (data && data.id !== lastSeenId) {
         lastSeenId = data.id;
-        pulledText = data.content;
-        showPullResult(pulledText);
-        flashDot();
-        tryAutoCopy(pulledText);
+        if (await takeRow(data)) flashDot();
       }
     } catch(_) {}
     if (!realtimeConnected) {
@@ -297,10 +487,12 @@
     const text = document.getElementById('push-text').value.trim();
     const btn  = document.getElementById('push-btn');
     if (!text) { setMsg('push-msg', 'Nothing to push.', 'err'); return; }
+    if (!clipKey) { setMsg('push-msg', 'Locked. Unlock to push.', 'err'); openKey(); return; }
     btn.disabled = true; btn.textContent = 'Pushing…';
     const expiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
     try {
-      const { error } = await sb.from('clips').insert({ content: text, expires_at: expiresAt, source: 'pc' });
+      const content = await cbEncrypt(clipKey, text, 'pc-to-mac');
+      const { error } = await sb.from('clips').insert({ content, expires_at: expiresAt, source: 'pc-to-mac' });
       if (error) throw error;
       setMsg('push-msg', 'Pushed.', 'ok');
       document.getElementById('push-text').value = '';
@@ -326,7 +518,7 @@
     btn.disabled = true; btn.textContent = 'Fetching…';
     try {
       const { data, error } = await sb.from('clips')
-        .select('id, content')
+        .select('id, content, source')
         .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: false })
         .limit(1).single();
@@ -334,10 +526,7 @@
         setMsg('pull-msg', 'Nothing waiting.', 'dim');
       } else {
         lastSeenId = data.id;
-        pulledText = data.content;
-        showPullResult(pulledText);
-        setMsg('pull-msg', '', '');
-        tryAutoCopy(pulledText);
+        if (!await takeRow(data)) setMsg('pull-msg', 'Nothing waiting.', 'dim');
       }
     } catch(_) { setMsg('pull-msg', 'Network error.', 'err'); }
     btn.disabled = false; btn.textContent = 'Fetch Latest';
@@ -470,6 +659,7 @@
   }
 
   document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeKey();
     if (e.ctrlKey && e.shiftKey && e.key === 'T') { e.preventDefault(); openTheme(); }
     if (e.key === 'Escape') closeTheme();
   });
