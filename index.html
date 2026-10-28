@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <script>
-  var BUILD_VERSION = '2.4.0';
+  var BUILD_VERSION = '2.5.0';
   var stored = localStorage.getItem('clip-version');
   if (stored && stored !== BUILD_VERSION) {
     localStorage.setItem('clip-version', BUILD_VERSION);
@@ -14,7 +14,12 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#0F1A1C">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <title>Clip</title>
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAvElEQVR42u1X2w2AIAykDVPw7Qru4ojuwgp8dw39IiEEK0UeGrkvErkeXC/EggpgjDlUBxAR+DX2Fo+1sLd4fAgYIR4C1WBoKWF39nbPtqxtHMgRl+wrcoC7pUTY4zKEXDHOYikPn1r4tIVaYrUvsDt724IUL7sFnlDaZ44Xf9M1wvePh6gkmDlufceB2r2fGZgZmBmYGXiNA+8+QK0/I66ObpF+kQPhoNg6cHFdIgIYMZyGEzKmRuae4/kJR95Z10KPoyMAAAAASUVORK5CYII=">
 <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAADlklEQVR42u3cwXWbQBSGUTFHVbBOC+klJboXt+A1bTirbKLERhJi5s1/7zrnxMD7mMGyWC4drOv6eYG/bNu2nP1/Lgae5CAWQ09yDIuhJzmGZvip5shZWww+yatBM/wkrwaLwSd5NWiGn+TVoBl+kiNohp/kCJrhJzmCZvhJjqAZfpIjaE4RyZq7P8mrQDP8JEdgC4QtkLs/qatAM/wkR2ALhC0QxAdg+0PiNsgKgBUAogOw/SF1G2QFwAoAAoBAi/0/ya5OwX5vH+9lftZfP366YFaAvMEXggAMvhA8BBv+uY9HAIbFcQnAkDg+AYAA3B0dpwBAAO6KjlcAIAD4jr8FOkiPT1ptY6wAscPf8/8VAMMMoQgEED98IhBA/NCJQABwt6F/C+S3HPOc31FXqKvB58xrOloIV4NPcgjN8JN8vZuTQfJ1b04Cydffr0GJ1pLrxypgBcAK4O5f/+d3Pq0AsUNnKymA2OEz/M+Z4hthR36q+MhAvX28l/pGWO/zJYABB9+d+LlrUPX4W9WT/qrhn/3v6l953iqeu+YC5kTg3HkIjo3AN8YmCODsi1h1We99DJXOmfcCTfqg544/WQAjXFBDdd+5qnDD8AyAZwAQAAgABAACAAGAAEAAIAAQAAgABAACAAGAAKCeuG+EeZHU95K++GMFwBYIBAACAAGAAEAAIAAQAEwp7pNgrzfECgACAAEgABAACAAEAAIAAYAAQAAgABAATMV7gbjhvUAgABAACAAEAAIAAYAAQABQnPcCYQUAAYAAQAAgABAACAAEAAIAAYAAQAAgAKjMe4G44b1AIAAQAAgABAACAAGAAEAAUJz3AmEFAAGAAEAAIAAQAAgABAACAAGAAEAAIAAQwAm8z6eWKtfLCoAVwF2F1OtkBcAK4O5C6vW5Vj7Jvt5o8CMDEILBPyyAbduWdV0/XQTSbNu2eAjGQzAI4GT27YwwD+3PXsglIG3/330LZBWg9xx4BsAzQM9tkFXA3b/X9meYFUAEhj9+CyQCw9/DzbZnhE+FfbJr8M/Y/vwzgFEiEILBf/XwDx8AvDqAtvcfwmzD/+VDsAiYffi/DAAStEfLgep3/10rgAiYdfh3b4FEwIzDf9czgAiYbfjvfggWATMN/90BiICZhv9y+c8nwXv5xJiqg//wCmA1YJbhf3oFsBpQdfAPWQGsBlQe/kNXACsCVYb+lADEQIVdRZdtiyAYZRv9G2skX4RAFbWUAAAAAElFTkSuQmCC">
@@ -25,162 +30,203 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
 <style>
   :root {
-    --accent:  #c2f6e5;
-    --accent2: #a8e8d0;
-    --bg:      #f3f2f1;
-    --surface: #ffffff;
-    --border:  #e1dfdd;
-    --input:   #c8c6c4;
-    --text:    #323130;
-    --muted:   #605e5c;
-    --dim:     #a19f9d;
-    --err:     #d83b01;
-    --codebg:  #f3f2f1;
+    --accent: #8FE9CB; --accent2: #B4F3DD;
+    --bg: #0F1A1C; --surface: #15252A; --border: #223639; --input: #2E474A;
+    --text: #E3EFEB; --muted: #93AAA5; --dim: #5F7975; --codebg: #0C1517;
+    --ok: #8FE9CB; --err: #FF9580; --on-accent: #0B1A16;
+    --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+    color-scheme: dark;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  html { overflow-x: hidden; }
+  html { -webkit-text-size-adjust: 100%; overscroll-behavior: none; }
   body {
-    background: var(--bg); color: var(--text);
-    font-family: 'Segoe UI', system-ui, sans-serif; font-size: 13px;
-    min-height: 100vh; display: flex; flex-direction: column;
-    align-items: center; padding: 24px 16px 48px;
-    overflow-x: hidden; width: 100%; transition: background 0.2s, color 0.2s;
+    background: var(--bg); color: var(--text); font: 400 16px/1.5 var(--sans);
+    min-height: 100vh; overscroll-behavior: none; touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent; transition: background 0.2s, color 0.2s;
   }
-  .container { width: 100%; max-width: 860px; overflow-x: hidden; }
-  .header {
-    background: var(--accent); border-radius: 4px 4px 0 0;
-    padding: 10px 16px; display: flex; align-items: center;
-  }
-  .header-title { color: #1a1a1a; font-size: 13px; font-weight: 600; flex: 1; display: flex; align-items: center; gap: 8px; }
-  .header-ver { font-size: 10px; font-weight: 400; opacity: 0.45; }
-  .theme-btn { font-size: 11px; color: rgba(0,0,0,0.45); cursor: pointer; padding: 3px 8px; border-radius: 2px; background: transparent; border: none; font-family: inherit; }
-  .theme-btn:hover { background: rgba(0,0,0,0.08); }
-  .cols { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); gap: 0 12px; align-items: stretch; }
-  .cols > div { display: flex; flex-direction: column; min-width: 0; overflow: hidden; }
-  .cols > div .card { flex: 1; }
-  @media (max-width: 600px) {
-    body { padding: 12px 8px 32px; }
-    .cols { grid-template-columns: 1fr; }
-    .cols > div { overflow: visible; }
-    .header { border-radius: 4px; }
-    .container { max-width: 100vw; }
-  }
-  .card {
-    background: var(--surface); border: 1px solid var(--border); border-top: none;
-    padding: 16px; display: flex; flex-direction: column; min-height: 220px;
-  }
-  .section-label { font-size: 11px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
-  textarea {
-    width: 100%; min-height: 100px; flex: 1;
-    border: 1px solid var(--input); border-radius: 2px; padding: 8px 10px;
-    font-family: inherit; font-size: 16px; color: var(--text); background: var(--surface);
-    resize: none; outline: none; margin-bottom: 8px; line-height: 1.5; min-width: 0; max-width: 100%;
-  }
-  textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  textarea::placeholder { color: var(--dim); font-size: 14px; }
-  .btn {
-    display: block; width: 100%; padding: 7px 16px;
-    font-family: inherit; font-size: 13px; font-weight: 600;
-    border-radius: 2px; cursor: pointer; border: none; text-align: center;
-    transition: background 0.1s; margin-bottom: 6px;
-  }
-  .btn:last-child { margin-bottom: 0; }
-  .btn-primary { background: var(--accent); color: #1a1a1a; }
-  .btn-primary:hover { background: var(--accent2); }
-  .btn-primary:disabled { background: var(--input); cursor: not-allowed; color: var(--muted); }
-  .btn-default { background: var(--surface); color: var(--text); border: 1px solid var(--input); }
-  .btn-default:hover { background: var(--bg); }
-  .result-box {
-    background: var(--codebg); border: 1px solid var(--border); border-radius: 2px;
-    padding: 10px; font-size: 13px; white-space: pre-wrap;
-    overflow-wrap: break-word; word-break: break-word;
-    max-height: 200px; overflow-y: auto; overflow-x: hidden;
-    margin-bottom: 8px; line-height: 1.6; color: var(--text); width: 100%; max-width: 100%;
-  }
-  .poll-row { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; min-height: 20px; }
-  .poll-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); flex-shrink: 0; transition: background 0.3s; }
-  .poll-dot.live { background: #107c10; }
-  .poll-dot.pulse { background: var(--accent2); animation: pulse 0.4s ease-out; }
-  @keyframes pulse { 0%{transform:scale(1)} 50%{transform:scale(1.8)} 100%{transform:scale(1)} }
-  .poll-label { font-size: 10px; color: var(--dim); letter-spacing: 0.04em; }
-  .msg { font-size: 11px; min-height: 16px; margin-top: 4px; }
-  .msg.err { color: var(--err); }
-  .msg.ok  { color: #107c10; }
-  .msg.dim { color: var(--dim); }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
   .hidden { display: none !important; }
-  .theme-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000; display: flex; align-items: center; justify-content: center; }
-  .theme-panel { background: var(--surface); border: 1px solid var(--border); border-radius: 6px; padding: 20px; width: 340px; box-shadow: 0 8px 32px rgba(0,0,0,0.18); }
-  .theme-panel-title { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; }
-  .theme-close { cursor: pointer; font-size: 16px; color: var(--dim); }
-  .theme-close:hover { color: var(--text); }
-  .presets { display: grid; grid-template-columns: repeat(5,1fr); gap: 8px; margin-bottom: 16px; }
-  .preset { border-radius: 4px; height: 42px; cursor: pointer; border: 2px solid transparent; display: flex; flex-direction: column; overflow: hidden; transition: transform 0.1s, border-color 0.1s; }
-  .preset:hover { transform: scale(1.06); }
-  .preset.active { border-color: var(--text); }
-  .preset-top { flex: 1; }
-  .preset-bot { height: 12px; }
-  .preset-label { font-size: 9px; text-align: center; margin-top: 4px; color: var(--muted); }
-  .custom-row { display: flex; gap: 10px; margin-bottom: 14px; }
-  .custom-field { flex: 1; }
-  .custom-field label { display: block; font-size: 10px; color: var(--muted); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.08em; }
-  .custom-field input[type=color] { width: 100%; height: 32px; border: 1px solid var(--input); border-radius: 2px; cursor: pointer; padding: 2px; background: var(--surface); }
-  .theme-actions { display: flex; gap: 8px; }
-  .theme-actions .btn { margin-bottom: 0; }
-  .pull-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  .pull-header .section-label { margin-bottom: 0; }
-  .auto-btn { font-size: 10px; padding: 2px 8px; border-radius: 10px; cursor: pointer; border: 1px solid var(--input); background: var(--surface); color: var(--dim); font-family: inherit; font-weight: 600; letter-spacing: 0.04em; transition: background 0.15s, color 0.15s, border-color 0.15s; }
-  .key-input {
-    width: 100%; border: 1px solid var(--input); border-radius: 2px; padding: 8px 10px;
-    font-family: inherit; font-size: 16px; color: var(--text); background: var(--surface);
-    outline: none; margin-bottom: 10px;
+
+  .app { max-width: 1180px; margin: 0 auto; padding: 32px 32px 40px; min-height: 100vh; display: flex; flex-direction: column; }
+  .bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .mark { width: 30px; height: 30px; color: var(--accent); flex-shrink: 0; }
+  .word { font-size: 26px; font-weight: 600; letter-spacing: -0.01em; }
+  .build { font: 400 13px var(--mono); color: var(--dim); }
+  .bar-actions { display: flex; align-items: center; gap: 8px; }
+  .lock {
+    display: inline-flex; align-items: center; gap: 8px; height: 40px; padding: 0 16px 0 13px;
+    border-radius: 999px; border: 1px solid var(--input); background: transparent;
+    color: var(--muted); font-size: 15px; font-weight: 500; cursor: pointer;
   }
-  .key-input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
-  .key-remember { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 14px; cursor: pointer; }
-  .pair-qr { background: #fff; padding: 8px; border-radius: 4px; width: 232px; margin: 12px auto 4px; }
+  .lock svg { width: 17px; height: 17px; }
+  .lock[data-state="unlocked"] { border-color: transparent; color: var(--ok); background: color-mix(in srgb, var(--accent) 15%, transparent); }
+  .lock[data-state="locked"] .ic-open, .lock[data-state="unlocked"] .ic-shut { display: none; }
+  .text-btn { height: 40px; padding: 0 14px; border: none; border-radius: 10px; background: transparent; color: var(--muted); font-size: 15px; cursor: pointer; }
+  .text-btn:hover { color: var(--text); background: var(--surface); }
+
+  .panes { flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; }
+  .pane {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 18px;
+    padding: 22px; display: flex; flex-direction: column; min-height: 460px; min-width: 0;
+  }
+  .pane-head { display: flex; align-items: center; gap: 12px; min-height: 36px; margin-bottom: 16px; }
+  .pane-head h2 { font-size: 20px; font-weight: 600; margin-right: auto; }
+  textarea {
+    flex: 1; width: 100%; min-height: 220px; resize: none; outline: none;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--codebg);
+    color: var(--text); font: 400 18px/1.6 var(--mono); padding: 16px 18px;
+  }
+  textarea::placeholder { color: var(--dim); font: 400 18px var(--sans); }
+  textarea:focus { border-color: var(--accent); }
+  .well {
+    flex: 1; min-height: 220px; max-height: max(220px, calc(100vh - 340px)); display: flex; overflow: hidden;
+    border: 1px solid var(--border); border-radius: 12px; background: var(--codebg);
+  }
+  .empty { margin: auto; color: var(--dim); font-size: 16px; }
+  .result-box {
+    flex: 1; padding: 16px 18px; overflow-y: auto;
+    font: 400 18px/1.6 var(--mono); white-space: pre-wrap; overflow-wrap: anywhere;
+    unicode-bidi: plaintext; text-align: start;
+  }
+  .actions { display: flex; gap: 10px; margin-top: 16px; }
+  .actions .btn { flex: 1; }
+  .btn {
+    height: 52px; padding: 0 18px; border-radius: 12px; border: 1px solid transparent;
+    font-size: 16px; font-weight: 500; cursor: pointer; transition: background 0.12s, border-color 0.12s;
+  }
+  .btn-primary { background: var(--accent); color: var(--on-accent); font-weight: 600; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-primary:disabled { opacity: 0.5; cursor: default; }
+  .btn-default { background: transparent; color: var(--text); border-color: var(--input); }
+  .btn-default:hover { border-color: var(--muted); }
+  .msg { font-size: 14px; min-height: 20px; margin-top: 10px; color: var(--muted); }
+  .msg.err { color: var(--err); }
+  .msg.ok  { color: var(--ok); }
+  .msg.dim { color: var(--dim); }
+
+  .poll-row { display: flex; align-items: center; gap: 6px; }
+  .poll-dot { width: 9px; height: 9px; border-radius: 50%; background: var(--dim); transition: background 0.3s; }
+  .poll-dot.live, .poll-dot.pulse { background: var(--accent); }
+  .poll-dot.pulse { animation: pulse 0.4s ease-out; }
+  @keyframes pulse { 50% { transform: scale(1.8); } }
+  .poll-label { font-size: 14px; color: var(--dim); }
+  .auto-btn {
+    height: 34px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--input);
+    background: transparent; color: var(--muted); font-size: 14px; font-weight: 500; cursor: pointer;
+  }
+  .auto-btn.active { border-color: transparent; color: var(--ok); background: color-mix(in srgb, var(--accent) 15%, transparent); }
+  #pull-pane.arrived { animation: arrive 1.2s ease-out; }
+  @keyframes arrive {
+    0%   { border-color: var(--accent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 28%, transparent); }
+    100% { border-color: var(--border); box-shadow: 0 0 0 3px transparent; }
+  }
+
+  .theme-overlay {
+    position: fixed; inset: 0; z-index: 1000; padding: 16px;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(4, 10, 11, 0.6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  }
+  .theme-panel {
+    width: 100%; max-width: 420px; padding: 24px; border-radius: 20px;
+    background: var(--surface); border: 1px solid var(--border); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.45);
+  }
+  .theme-panel > .btn { width: 100%; }
+  .theme-panel-title { display: flex; justify-content: space-between; align-items: center; font-size: 19px; font-weight: 600; margin-bottom: 16px; }
+  .theme-close { cursor: pointer; color: var(--dim); padding: 4px; }
+  .theme-close:hover { color: var(--text); }
+  .theme-actions { display: flex; gap: 8px; }
+  .theme-actions .btn { flex: 1; }
+  .presets { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 16px; }
+  .preset { height: 52px; border-radius: 8px; cursor: pointer; border: 2px solid transparent; display: flex; flex-direction: column; overflow: hidden; }
+  .preset.active { border-color: var(--accent); }
+  .preset-top { flex: 1; }
+  .preset-bot { height: 10px; }
+  .preset-label { font-size: 13px; text-align: center; margin-top: 5px; color: var(--muted); }
+  .custom-row { display: flex; gap: 10px; margin-bottom: 16px; }
+  .custom-field { flex: 1; }
+  .custom-field label { display: block; font-size: 14px; color: var(--muted); margin-bottom: 4px; }
+  .custom-field input[type=color] { width: 100%; height: 40px; border: 1px solid var(--input); border-radius: 8px; padding: 2px; background: var(--codebg); cursor: pointer; }
+  .key-input {
+    width: 100%; height: 52px; padding: 0 14px; margin-bottom: 14px; outline: none;
+    border: 1px solid var(--input); border-radius: 12px; background: var(--codebg);
+    color: var(--text); font: 400 18px var(--mono);
+  }
+  .key-input:focus { border-color: var(--accent); }
+  .key-remember { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--muted); margin-bottom: 16px; cursor: pointer; }
+  .key-remember input { width: 19px; height: 19px; accent-color: var(--accent); }
+  .pair-divider { border-top: 1px solid var(--border); margin: 16px 0 14px; }
+  .pair-qr { background: #fff; padding: 10px; border-radius: 12px; width: 232px; margin: 14px auto 6px; }
   .pair-qr svg { display: block; width: 100%; height: auto; }
-  .pair-divider { border-top: 1px solid var(--border); margin: 14px 0 12px; }
-  .auto-btn.active { background: var(--accent); color: #1a1a1a; border-color: var(--accent2); }
+
+  @media (max-width: 640px) {
+    .app { padding: 16px 14px 28px; }
+    .bar { margin-bottom: 16px; }
+    .word { font-size: 23px; }
+    .panes { grid-template-columns: 1fr; gap: 14px; }
+    .pane { min-height: 0; padding: 18px; }
+    textarea, .well { min-height: 180px; }
+    .result-box { max-height: 50vh; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #pull-pane.arrived, .poll-dot.pulse { animation: none; }
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <div class="header">
-    <div class="header-title">
-      &#x1F4CB; Clip
-      <span class="header-ver">v2.4.0</span>
+<main class="app">
+  <header class="bar">
+    <div class="brand">
+      <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="3" y="6.5" width="12" height="14.5" rx="3" fill="none" stroke="currentColor" stroke-width="1.8"/>
+        <rect x="9" y="3" width="12" height="14.5" rx="3" fill="currentColor"/>
+      </svg>
+      <span class="word">Clip</span>
+      <span class="build">v2.5.0</span>
     </div>
-    <button class="theme-btn" id="key-btn" onclick="openKey()">Locked</button>
-    <button class="theme-btn" onclick="openTheme()" title="Ctrl+Shift+T">Theme</button>
-  </div>
-  <div class="cols">
-    <div>
-      <div class="card">
-        <div class="section-label">Push</div>
-        <textarea id="push-text" placeholder="Paste anything here"></textarea>
-        <button class="btn btn-default" onclick="pasteClipboard()">Paste from Clipboard</button>
+    <div class="bar-actions">
+      <button class="lock" id="key-btn" data-state="locked" onclick="openKey()">
+        <svg class="ic-shut" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="2" fill="currentColor"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        <svg class="ic-open" viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="7" width="10" height="7.5" rx="2" fill="currentColor"/><path d="M5.5 7V5a2.5 2.5 0 0 1 4.8-1" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span id="key-label">Locked</span>
+      </button>
+      <button class="text-btn" onclick="openTheme()" title="Ctrl+Shift+T">Theme</button>
+    </div>
+  </header>
+  <div class="panes">
+    <section class="pane">
+      <div class="pane-head"><h2>Push</h2></div>
+      <textarea id="push-text" placeholder="Paste or type" spellcheck="false" autocapitalize="off" autocorrect="off"></textarea>
+      <div class="actions">
+        <button class="btn btn-default" onclick="pasteClipboard()">Paste from clipboard</button>
         <button class="btn btn-primary" id="push-btn" onclick="pushClip()">Push</button>
-        <div id="push-msg" class="msg"></div>
       </div>
-    </div>
-    <div>
-      <div class="card">
-        <div class="pull-header">
-          <div class="section-label">Pull</div>
-          <button id="auto-clip-btn" class="auto-btn" onclick="toggleAutoClip()" title="Auto-copy new clips to clipboard">Auto</button>
-        </div>
+      <div id="push-msg" class="msg"></div>
+    </section>
+    <section class="pane" id="pull-pane">
+      <div class="pane-head">
+        <h2>Pull</h2>
         <div class="poll-row">
-          <div class="poll-dot" id="poll-dot"></div>
+          <span class="poll-dot" id="poll-dot"></span>
           <span class="poll-label" id="poll-label">Connecting…</span>
         </div>
+        <button id="auto-clip-btn" class="auto-btn" onclick="toggleAutoClip()">Auto copy</button>
+      </div>
+      <div class="well">
+        <div id="pull-empty" class="empty">No clip yet.</div>
         <div id="pull-result" class="result-box hidden"></div>
+      </div>
+      <div class="actions">
         <button id="pull-copy-btn" class="btn btn-primary hidden" onclick="copyPulled()">Copy</button>
         <button id="pull-clear-btn" class="btn btn-default hidden" onclick="clearPull()">Clear</button>
-        <button class="btn btn-default" id="fetch-btn" onclick="fetchLatest()">Fetch Latest</button>
-        <div id="pull-msg" class="msg"></div>
+        <button class="btn btn-default" id="fetch-btn" onclick="fetchLatest()">Fetch latest</button>
       </div>
-    </div>
+      <div id="pull-msg" class="msg"></div>
+    </section>
   </div>
-</div>
+</main>
 
 <div class="theme-overlay hidden" id="theme-overlay" onclick="if(event.target===this)closeTheme()">
   <div class="theme-panel">
@@ -249,6 +295,8 @@
   let autoClipEnabled = localStorage.getItem('clip-auto') === '1';
   // Text we last wrote via auto-copy; if clipboard still matches, we "own" it
   let lastAutoCopied = null;
+
+  ['gesturestart', 'gesturechange'].forEach(t => document.addEventListener(t, e => e.preventDefault(), { passive: false }));
 
   window.addEventListener('load', async () => {
     loadSavedTheme();
@@ -446,7 +494,8 @@
   }
 
   function updateKeyBtn() {
-    document.getElementById('key-btn').textContent = clipKey ? 'Unlocked' : 'Locked';
+    document.getElementById('key-btn').dataset.state = clipKey ? 'unlocked' : 'locked';
+    document.getElementById('key-label').textContent = clipKey ? 'Unlocked' : 'Locked';
   }
 
   function openKey() {
@@ -628,7 +677,7 @@
   function updateAutoClipBtn() {
     const btn = document.getElementById('auto-clip-btn');
     btn.classList.toggle('active', autoClipEnabled);
-    btn.title = autoClipEnabled ? 'Auto-copy ON — click to disable' : 'Auto-copy OFF — click to enable';
+    btn.title = autoClipEnabled ? 'New clips go to the clipboard' : 'New clips stay on the page';
   }
 
   async function tryAutoCopy(text) {
@@ -722,7 +771,7 @@
       const text = await navigator.clipboard.readText();
       document.getElementById('push-text').value = text;
     } catch(_) {
-      setMsg('push-msg', 'Clipboard blocked — paste manually (⌘V / Ctrl+V).', 'dim');
+      setMsg('push-msg', 'Clipboard access is blocked. Paste with ⌘V or Ctrl+V.', 'dim');
       document.getElementById('push-text').focus();
     }
   }
@@ -746,10 +795,15 @@
         if (!await takeRow(data)) setMsg('pull-msg', 'Nothing waiting.', 'dim');
       }
     } catch(_) { setMsg('pull-msg', 'Network error.', 'err'); }
-    btn.disabled = false; btn.textContent = 'Fetch Latest';
+    btn.disabled = false; btn.textContent = 'Fetch latest';
   }
 
   function showPullResult(text) {
+    const pane = document.getElementById('pull-pane');
+    pane.classList.remove('arrived');
+    void pane.offsetWidth;   // restart the arrival glow
+    pane.classList.add('arrived');
+    document.getElementById('pull-empty').classList.add('hidden');
     document.getElementById('pull-result').textContent = text;
     document.getElementById('pull-result').classList.remove('hidden');
     document.getElementById('pull-copy-btn').classList.remove('hidden');
@@ -761,13 +815,14 @@
       await navigator.clipboard.writeText(pulledText);
     } catch(_) {}
     const btn = document.getElementById('pull-copy-btn');
-    btn.textContent = 'Copied!';
+    btn.textContent = 'Copied';
     setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
   }
 
   function clearPull() {
     pulledText = '';
     document.getElementById('pull-result').classList.add('hidden');
+    document.getElementById('pull-empty').classList.remove('hidden');
     document.getElementById('pull-copy-btn').classList.add('hidden');
     document.getElementById('pull-clear-btn').classList.add('hidden');
     setMsg('pull-msg', '', '');
@@ -776,28 +831,35 @@
   // --- Theme ---
 
   const PRESETS = [
-    { name:'Mint',  accent:'#c2f6e5', accent2:'#a8e8d0', bg:'#f3f2f1', surface:'#ffffff', border:'#e1dfdd', input:'#c8c6c4', text:'#323130', muted:'#605e5c', dim:'#a19f9d', codebg:'#f3f2f1' },
-    { name:'Dark',  accent:'#c2f6e5', accent2:'#a8e8d0', bg:'#1e1e1e', surface:'#2d2d2d', border:'#3d3d3d', input:'#555',    text:'#d4d4d4', muted:'#999',    dim:'#666',    codebg:'#252525' },
+    { name:'Night', accent:'#8FE9CB', accent2:'#B4F3DD', bg:'#0F1A1C', surface:'#15252A', border:'#223639', input:'#2E474A', text:'#E3EFEB', muted:'#93AAA5', dim:'#5F7975', codebg:'#0C1517' },
+    { name:'Ink',   accent:'#C9CED6', accent2:'#E2E5EA', bg:'#131416', surface:'#1B1D20', border:'#2A2D31', input:'#3A3E43', text:'#E6E7E9', muted:'#9A9EA4', dim:'#62666C', codebg:'#0F1012' },
+    { name:'Day',   accent:'#9FE8CF', accent2:'#86DDBF', bg:'#F2F4F2', surface:'#FFFFFF', border:'#E0E4E1', input:'#C9CFCB', text:'#1F2D29', muted:'#5B6965', dim:'#98A39F', codebg:'#F6F8F7' },
     { name:'Sky',   accent:'#bde0ff', accent2:'#9dcfff', bg:'#eef4fb', surface:'#ffffff', border:'#ccd9e8', input:'#b0c4d8', text:'#1a3a5c', muted:'#4a6a8c', dim:'#8aaccb', codebg:'#e8f0f8' },
     { name:'Peach', accent:'#ffd4b0', accent2:'#ffbf8e', bg:'#fdf5ef', surface:'#ffffff', border:'#e8d5c8', input:'#d4b8a8', text:'#3d2b1f', muted:'#7a5a4a', dim:'#b89080', codebg:'#f5ede6' },
-    { name:'Mono',  accent:'#d0d0d0', accent2:'#b8b8b8', bg:'#f8f8f8', surface:'#ffffff', border:'#e0e0e0', input:'#c8c8c8', text:'#1a1a1a', muted:'#606060', dim:'#a0a0a0', codebg:'#f0f0f0' },
   ];
+  // v2 keys: everyone starts on Night once, whatever 2.4 and earlier saved.
+  const THEME_KEY = 'clip-theme-v2', THEME_NAME_KEY = 'clip-theme-name-v2';
 
   function applyTheme(t) {
     const r = document.documentElement.style;
     ['accent','accent2','bg','surface','border','input','text','muted','dim'].forEach(k => r.setProperty('--'+k, t[k]));
     r.setProperty('--codebg', t.codebg);
+    const light = getLuminance(t.bg) > 0.35;
+    r.setProperty('color-scheme', light ? 'light' : 'dark');
+    r.setProperty('--ok',  light ? '#0F7B5A' : t.accent);
+    r.setProperty('--err', light ? '#C2410C' : '#FF9580');
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', t.bg);
   }
 
   function loadSavedTheme() {
-    try { const s = localStorage.getItem('clip-theme'); if (s) applyTheme(JSON.parse(s)); } catch(_) {}
+    try { const s = localStorage.getItem(THEME_KEY); if (s) applyTheme(JSON.parse(s)); } catch(_) {}
   }
 
   let pendingTheme = null;
   let themeAtOpen  = null;
 
   function buildPresets() {
-    const active = localStorage.getItem('clip-theme-name') || 'Mint';
+    const active = localStorage.getItem(THEME_NAME_KEY) || 'Night';
     document.getElementById('preset-list').innerHTML = PRESETS.map(p => {
       const cls = p.name === active ? 'preset active' : 'preset';
       return `<div><div class="${cls}" onclick="selectPreset('${p.name}')" style="background:${p.bg}">` +
@@ -852,12 +914,12 @@
 
   function openTheme() {
     buildPresets();
-    const saved = JSON.parse(localStorage.getItem('clip-theme') || JSON.stringify(PRESETS[0]));
+    const saved = JSON.parse(localStorage.getItem(THEME_KEY) || JSON.stringify(PRESETS[0]));
     themeAtOpen  = saved;
     pendingTheme = null;
-    document.getElementById('pick-accent').value  = saved.accent  || '#c2f6e5';
-    document.getElementById('pick-bg').value      = saved.bg      || '#f3f2f1';
-    document.getElementById('pick-surface').value = saved.surface || '#ffffff';
+    document.getElementById('pick-accent').value  = saved.accent  || PRESETS[0].accent;
+    document.getElementById('pick-bg').value      = saved.bg      || PRESETS[0].bg;
+    document.getElementById('pick-surface').value = saved.surface || PRESETS[0].surface;
     document.getElementById('theme-overlay').classList.remove('hidden');
   }
 
@@ -869,8 +931,8 @@
   function saveTheme() {
     if (!pendingTheme) { closeTheme(); return; }
     const { _name, ...td } = pendingTheme;
-    localStorage.setItem('clip-theme', JSON.stringify(td));
-    localStorage.setItem('clip-theme-name', _name || 'Custom');
+    localStorage.setItem(THEME_KEY, JSON.stringify(td));
+    localStorage.setItem(THEME_NAME_KEY, _name || 'Custom');
     themeAtOpen = td;
     document.getElementById('theme-overlay').classList.add('hidden');
   }
