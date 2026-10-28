@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <script>
-  var BUILD_VERSION = '2.5.0';
+  var BUILD_VERSION = '2.5.1';
   var stored = localStorage.getItem('clip-version');
   if (stored && stored !== BUILD_VERSION) {
     localStorage.setItem('clip-version', BUILD_VERSION);
@@ -16,7 +16,7 @@
 <meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="theme-color" content="#0F1A1C">
+<meta name="theme-color" content="#131416">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -30,10 +30,10 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
 <style>
   :root {
-    --accent: #8FE9CB; --accent2: #B4F3DD;
-    --bg: #0F1A1C; --surface: #15252A; --border: #223639; --input: #2E474A;
-    --text: #E3EFEB; --muted: #93AAA5; --dim: #5F7975; --codebg: #0C1517;
-    --ok: #8FE9CB; --err: #FF9580; --on-accent: #0B1A16;
+    --accent: #C9CED6; --accent2: #E2E5EA;
+    --bg: #131416; --surface: #1B1D20; --border: #2A2D31; --input: #3A3E43;
+    --text: #E6E7E9; --muted: #9A9EA4; --dim: #62666C; --codebg: #0F1012;
+    --ok: #C9CED6; --err: #FF9580; --on-accent: #121315;
     --sans: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
     --mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
     color-scheme: dark;
@@ -184,7 +184,7 @@
         <rect x="9" y="3" width="12" height="14.5" rx="3" fill="currentColor"/>
       </svg>
       <span class="word">Clip</span>
-      <span class="build">v2.5.0</span>
+      <span class="build">v2.5.1</span>
     </div>
     <div class="bar-actions">
       <button class="lock" id="key-btn" data-state="locked" onclick="openKey()">
@@ -831,13 +831,13 @@
   // --- Theme ---
 
   const PRESETS = [
-    { name:'Night', accent:'#8FE9CB', accent2:'#B4F3DD', bg:'#0F1A1C', surface:'#15252A', border:'#223639', input:'#2E474A', text:'#E3EFEB', muted:'#93AAA5', dim:'#5F7975', codebg:'#0C1517' },
     { name:'Ink',   accent:'#C9CED6', accent2:'#E2E5EA', bg:'#131416', surface:'#1B1D20', border:'#2A2D31', input:'#3A3E43', text:'#E6E7E9', muted:'#9A9EA4', dim:'#62666C', codebg:'#0F1012' },
+    { name:'Night', accent:'#8FE9CB', accent2:'#B4F3DD', bg:'#0F1A1C', surface:'#15252A', border:'#223639', input:'#2E474A', text:'#E3EFEB', muted:'#93AAA5', dim:'#5F7975', codebg:'#0C1517' },
     { name:'Day',   accent:'#9FE8CF', accent2:'#86DDBF', bg:'#F2F4F2', surface:'#FFFFFF', border:'#E0E4E1', input:'#C9CFCB', text:'#1F2D29', muted:'#5B6965', dim:'#98A39F', codebg:'#F6F8F7' },
     { name:'Sky',   accent:'#bde0ff', accent2:'#9dcfff', bg:'#eef4fb', surface:'#ffffff', border:'#ccd9e8', input:'#b0c4d8', text:'#1a3a5c', muted:'#4a6a8c', dim:'#8aaccb', codebg:'#e8f0f8' },
     { name:'Peach', accent:'#ffd4b0', accent2:'#ffbf8e', bg:'#fdf5ef', surface:'#ffffff', border:'#e8d5c8', input:'#d4b8a8', text:'#3d2b1f', muted:'#7a5a4a', dim:'#b89080', codebg:'#f5ede6' },
   ];
-  // v2 keys: everyone starts on Night once, whatever 2.4 and earlier saved.
+  // v2 keys: everyone starts on the default once, whatever 2.4 and earlier saved.
   const THEME_KEY = 'clip-theme-v2', THEME_NAME_KEY = 'clip-theme-name-v2';
 
   function applyTheme(t) {
@@ -859,7 +859,7 @@
   let themeAtOpen  = null;
 
   function buildPresets() {
-    const active = localStorage.getItem(THEME_NAME_KEY) || 'Night';
+    const active = localStorage.getItem(THEME_NAME_KEY) || 'Ink';
     document.getElementById('preset-list').innerHTML = PRESETS.map(p => {
       const cls = p.name === active ? 'preset active' : 'preset';
       return `<div><div class="${cls}" onclick="selectPreset('${p.name}')" style="background:${p.bg}">` +

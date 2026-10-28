@@ -92,13 +92,13 @@ unconditionally would clobber whatever the user just copied.
 
 ## Theming
 
-Dark by default since 2.5.0. Five presets (Night, Ink, Day, Sky, Peach) plus a custom
-picker, all driven by CSS custom properties on `:root`, whose defaults are Night. Custom
+Dark by default since 2.5.0. Five presets (Ink, Night, Day, Sky, Peach) plus a custom
+picker, all driven by CSS custom properties on `:root`, whose defaults are Ink (since 2.5.1; Night was the default in 2.5.0). Custom
 themes derive text, muted, dim, border, and input colors from the background luminance
 so contrast survives a dark background; `applyTheme` also sets `color-scheme`, the
 ok and error colors, and the `theme-color` meta from it. Persisted in localStorage under
 `clip-theme-v2` and `clip-theme-name-v2`; the keys changed in 2.5.0 so every device
-started on Night once. Ctrl+Shift+T opens the picker.
+started dark once. Ctrl+Shift+T opens the picker.
 
 Type is IBM Plex Sans for the interface and IBM Plex Mono for clip text, from Google
 Fonts. The two panes fill the window on a computer and stack on a phone.
