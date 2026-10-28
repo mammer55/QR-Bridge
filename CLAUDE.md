@@ -52,12 +52,36 @@ show twice.
 Clips are encrypted in the browser before insert, in the `cb1` format documented in
 ClipBridge's `shared/cbcrypt.py`. The block between `// --- cb1 crypto` and
 `// --- end cb1 crypto ---` in `index.html` must match that file exactly; run
-`node test/cb1_compat.mjs` after touching either. The header's Locked / Unlocked
-button opens the passphrase panel. The key is a non extractable `CryptoKey`, kept in
-memory, or in IndexedDB when "Remember on this device" is ticked; the passphrase is
-never stored. Rows that do not decrypt are ignored. `ACCEPT_PLAINTEXT` is still true
-because the Mac's clips to the work PC stay plaintext until the Windows tray learns
-cb1; set it false after that.
+`node test/cb1_compat.mjs` after touching either. Rows that do not decrypt are
+ignored, and since every client now encrypts (the Mac's clips to the work computer
+included, `encrypt_to_pc` in its config), `ACCEPT_PLAINTEXT` is false: unencrypted
+rows are forgeries or the iPhone's old plaintext Shortcut.
+
+The header's Locked / Unlocked button opens the passphrase panel. `clipKey` is a non
+extractable `CryptoKey`; `clipRaw` holds the same key's bytes only where they may be
+handed on (typed here, or remembered). "Remember on this device" stores those raw
+bytes in IndexedDB, readable by any page on the mammer55.github.io origin. The
+passphrase itself is never stored. Unlock checks the key against up to 20 fresh
+encrypted clips and passes if any opens; a second press with the same words goes
+through anyway, because anyone can insert junk that looks encrypted and that must
+never lock anyone out.
+
+## QR pairing
+
+"Pair with phone" in the passphrase panel unlocks a borrowed computer without typing
+the passphrase on it. The computer makes an ECDH P-256 key pair whose private half
+never leaves the tab and shows `#pair=<id>.<publicKey>` as a QR (qrcode-generator
+from jsdelivr, pinned with an SRI hash). The phone's camera opens that link; the page
+clears the hash at once, asks to unlock if it holds no raw key, then "Send key" seals
+the raw clip key under ECDH + HKDF and inserts it as a `source: 'pair'` row
+(`cbp1.<id>.<phonePublicKey>.<iv>.<ciphertext>`). The computer polls for it every 2
+seconds for 5 minutes. A photo of the code gives only the public key, which opens
+nothing. Pair rows are excluded from every pull query and from `openRow`, and the
+Mac app never selects them. `node test/pair.mjs` exercises the block between
+`// --- pair crypto` and `// --- end pair crypto ---`. On iOS the camera opens Safari,
+whose storage is separate from the Home Screen web app, so the phone must be unlocked
+and remembered in Safari itself. A link that only changes the hash of an open page is
+caught by the `hashchange` listener.
 
 ## Auto copy is deliberately conservative
 

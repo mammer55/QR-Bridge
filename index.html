@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <script>
-  var BUILD_VERSION = '2.3.0';
+  var BUILD_VERSION = '2.4.0';
   var stored = localStorage.getItem('clip-version');
   if (stored && stored !== BUILD_VERSION) {
     localStorage.setItem('clip-version', BUILD_VERSION);
@@ -22,6 +22,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Clip">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
 <style>
   :root {
     --accent:  #c2f6e5;
@@ -135,6 +136,9 @@
   }
   .key-input:focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
   .key-remember { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); margin-bottom: 14px; cursor: pointer; }
+  .pair-qr { background: #fff; padding: 8px; border-radius: 4px; width: 232px; margin: 12px auto 4px; }
+  .pair-qr svg { display: block; width: 100%; height: auto; }
+  .pair-divider { border-top: 1px solid var(--border); margin: 14px 0 12px; }
   .auto-btn.active { background: var(--accent); color: #1a1a1a; border-color: var(--accent2); }
 </style>
 </head>
@@ -143,7 +147,7 @@
   <div class="header">
     <div class="header-title">
       &#x1F4CB; Clip
-      <span class="header-ver">v2.3.0</span>
+      <span class="header-ver">v2.4.0</span>
     </div>
     <button class="theme-btn" id="key-btn" onclick="openKey()">Locked</button>
     <button class="theme-btn" onclick="openTheme()" title="Ctrl+Shift+T">Theme</button>
@@ -212,6 +216,25 @@
       <button class="btn btn-default" onclick="forgetKey()">Lock</button>
     </div>
     <div id="key-msg" class="msg"></div>
+    <div class="pair-divider"></div>
+    <button class="btn btn-default" id="pair-btn" onclick="startPair()">Pair with phone</button>
+    <div id="pair-qr" class="pair-qr hidden"></div>
+    <div id="pair-msg" class="msg"></div>
+  </div>
+</div>
+
+<div class="theme-overlay hidden" id="send-overlay" onclick="if(event.target===this)closeSend()">
+  <div class="theme-panel">
+    <div class="theme-panel-title">
+      <span>Pair</span>
+      <span class="theme-close" onclick="closeSend()">&#x2715;</span>
+    </div>
+    <div class="msg dim" style="margin-bottom:14px">The computer showing the code gets this device's key.</div>
+    <div class="theme-actions">
+      <button class="btn btn-primary" id="send-btn" onclick="sendPair()">Send key</button>
+      <button class="btn btn-default" onclick="closeSend()">Cancel</button>
+    </div>
+    <div id="send-msg" class="msg"></div>
   </div>
 </div>
 
@@ -230,8 +253,13 @@
   window.addEventListener('load', async () => {
     loadSavedTheme();
     updateAutoClipBtn();
-    clipKey = await cbLoadKey();
+    const stored = await cbLoadKey();
+    if (stored instanceof Uint8Array) { clipRaw = stored; await setKey(stored); }
+    else if (stored) { clipKey = stored; }   // remembered by 2.3.0, cannot be handed on
     updateKeyBtn();
+    checkPairLink();
+    // a code scanned while this page is already open only changes the hash
+    window.addEventListener('hashchange', checkPairLink);
     startRealtime();
     startFallbackPoll();
   });
@@ -247,13 +275,18 @@
 
   function cbNormalize(p) { return p.toLowerCase().split(/\s+/).filter(Boolean).join(' '); }
 
-  async function cbDeriveKey(passphrase) {
+  async function cbDeriveRaw(passphrase) {
     const enc = new TextEncoder();
-    const base = await crypto.subtle.importKey('raw', enc.encode(cbNormalize(passphrase)), 'PBKDF2', false, ['deriveKey']);
-    return crypto.subtle.deriveKey(
-      { name: 'PBKDF2', hash: 'SHA-256', salt: CB_SALT, iterations: CB_ROUNDS },
-      base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    const base = await crypto.subtle.importKey('raw', enc.encode(cbNormalize(passphrase)), 'PBKDF2', false, ['deriveBits']);
+    return new Uint8Array(await crypto.subtle.deriveBits(
+      { name: 'PBKDF2', hash: 'SHA-256', salt: CB_SALT, iterations: CB_ROUNDS }, base, 256));
   }
+
+  function cbImportKey(raw) {
+    return crypto.subtle.importKey('raw', raw, { name: 'AES-GCM' }, false, ['encrypt', 'decrypt']);
+  }
+
+  async function cbDeriveKey(passphrase) { return cbImportKey(await cbDeriveRaw(passphrase)); }
 
   function cbB64(bytes) {
     let s = '';
@@ -292,14 +325,95 @@
   }
   // --- end cb1 crypto ---
 
-  // --- Passphrase ---
-  // The key is a non extractable CryptoKey: kept in memory for this tab, or
-  // in IndexedDB when remembered, so the passphrase itself is never stored.
+  // --- pair crypto: hands the clip key from a phone to a borrowed computer
+  // without typing the passphrase there. The computer makes an ECDH P-256 key
+  // pair whose private half never leaves the tab and shows only the public
+  // half in the QR, so a photo of the code is worth nothing. The phone seals
+  // the raw clip key under ECDH + HKDF and inserts it as a source 'pair' row:
+  //   "cbp1." id "." phonePublicKey "." iv "." ciphertext
+  // with "pair:" + id as associated data. test/pair.mjs exercises this block.
+  const PAIR_PREFIX = 'cbp1.';
+  const PAIR_LIFE_MS = 5 * 60 * 1000;
 
-  // Clips to the work PC are still plaintext until its tray decrypts them.
-  // Set false once it does, so the page stops showing unencrypted clips too.
-  const ACCEPT_PLAINTEXT = true;
+  async function pairNewSession() {
+    const kp = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits']);
+    const pub = new Uint8Array(await crypto.subtle.exportKey('raw', kp.publicKey));
+    return { id: cbB64(crypto.getRandomValues(new Uint8Array(9))), pub: cbB64(pub), privateKey: kp.privateKey };
+  }
+
+  async function pairSecret(privateKey, peerPub, id) {
+    const enc = new TextEncoder();
+    const peer = await crypto.subtle.importKey('raw', cbUnb64(peerPub), { name: 'ECDH', namedCurve: 'P-256' }, false, []);
+    const bits = await crypto.subtle.deriveBits({ name: 'ECDH', public: peer }, privateKey, 256);
+    const hk = await crypto.subtle.importKey('raw', bits, 'HKDF', false, ['deriveKey']);
+    return crypto.subtle.deriveKey(
+      { name: 'HKDF', hash: 'SHA-256', salt: enc.encode(id), info: enc.encode('clipbridge-pair/v1') },
+      hk, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+  }
+
+  // Phone side: the row content that hands clipRaw to the computer that
+  // showed (id, computerPub).
+  async function pairSeal(clipRaw, id, computerPub) {
+    const enc = new TextEncoder();
+    const kp = await crypto.subtle.generateKey({ name: 'ECDH', namedCurve: 'P-256' }, false, ['deriveBits']);
+    const mine = cbB64(new Uint8Array(await crypto.subtle.exportKey('raw', kp.publicKey)));
+    const key = await pairSecret(kp.privateKey, computerPub, id);
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const body = enc.encode(JSON.stringify({ v: 1, k: cbB64(clipRaw) }));
+    const sealed = await crypto.subtle.encrypt({ name: 'AES-GCM', iv, additionalData: enc.encode('pair:' + id) }, key, body);
+    return PAIR_PREFIX + id + '.' + mine + '.' + cbB64(iv) + '.' + cbB64(new Uint8Array(sealed));
+  }
+
+  // Computer side: the clip key's raw bytes from a pair row, or null.
+  async function pairOpen(session, content) {
+    if (typeof content !== 'string' || !content.startsWith(PAIR_PREFIX + session.id + '.')) return null;
+    try {
+      const [, , phonePub, iv, sealed] = content.split('.');
+      const key = await pairSecret(session.privateKey, phonePub, session.id);
+      const body = await crypto.subtle.decrypt(
+        { name: 'AES-GCM', iv: cbUnb64(iv), additionalData: new TextEncoder().encode('pair:' + session.id) },
+        key, cbUnb64(sealed));
+      const payload = JSON.parse(new TextDecoder().decode(body));
+      const raw = cbUnb64(payload.k);
+      return payload.v === 1 && raw.length === 32 ? raw : null;
+    } catch (_) { return null; }
+  }
+  // --- end pair crypto ---
+
+  // --- Passphrase ---
+  // clipKey is a non extractable CryptoKey used for every clip. clipRaw is
+  // the same key's bytes, held only where they may be handed on by pairing:
+  // after the passphrase was typed here, or when remembered. Remembering
+  // stores those bytes in IndexedDB, readable by any page on this github.io
+  // origin; the passphrase itself is never stored. A computer unlocked by
+  // pairing keeps no raw bytes unless remembered.
+
+  // Every client encrypts now, so an unencrypted row is a forgery or the
+  // iPhone's plaintext Shortcut, and neither belongs on this page.
+  const ACCEPT_PLAINTEXT = false;
   let clipKey = null;
+  let clipRaw = null;
+
+  async function setKey(raw, remember) {
+    clipKey = await cbImportKey(raw);
+    if (remember !== undefined) await cbStoreKey(remember ? raw : null);
+    updateKeyBtn();
+  }
+
+  // Fresh encrypted clips are the only thing that can tell a typo from the
+  // right passphrase. Anyone can insert junk that looks encrypted, so this
+  // passes when any recent clip opens, and saveKey lets a second press
+  // through regardless: a flood of junk must never lock anyone out.
+  async function keyOpensRecent(key) {
+    const { data } = await sb.from('clips').select('content, source')
+      .like('content', CB_PREFIX + '%')
+      .gt('expires_at', new Date().toISOString())
+      .order('created_at', { ascending: false }).limit(20);
+    if (!data || !data.length) return true;
+    for (const row of data) if (await cbDecrypt(key, row.content, row.source) !== null) return true;
+    return false;
+  }
+  let rejectedPhrase = null;
 
   function cbDb() {
     return new Promise((resolve, reject) => {
@@ -342,7 +456,111 @@
     document.getElementById('key-input').focus();
   }
 
-  function closeKey() { document.getElementById('key-overlay').classList.add('hidden'); }
+  function closeKey() {
+    stopPair();
+    document.getElementById('pair-btn').textContent = 'Pair with phone';
+    document.getElementById('key-overlay').classList.add('hidden');
+  }
+
+  // --- Pairing, computer side ---
+
+  let pairSession = null;
+  let pairTimer = null;
+
+  function stopPair() {
+    if (pairTimer) clearInterval(pairTimer);
+    pairTimer = null;
+    pairSession = null;
+    document.getElementById('pair-qr').classList.add('hidden');
+    setMsg('pair-msg', '', '');
+  }
+
+  async function startPair() {
+    stopPair();
+    const session = await pairNewSession();
+    pairSession = session;
+    const url = location.origin + location.pathname + '#pair=' + session.id + '.' + session.pub;
+    const qr = qrcode(0, 'M');
+    qr.addData(url);
+    qr.make();
+    const box = document.getElementById('pair-qr');
+    box.innerHTML = qr.createSvgTag({ cellSize: 4, margin: 4, scalable: true });
+    box.classList.remove('hidden');
+    document.getElementById('pair-btn').textContent = 'New code';
+    setMsg('pair-msg', 'Scan with your phone.', 'dim');
+    const started = Date.now();
+    pairTimer = setInterval(async () => {
+      if (pairSession !== session) return;
+      if (Date.now() - started > PAIR_LIFE_MS) {
+        stopPair();
+        setMsg('pair-msg', 'Code expired.', 'dim');
+        return;
+      }
+      try {
+        const { data } = await sb.from('clips').select('content')
+          .eq('source', 'pair').like('content', PAIR_PREFIX + session.id + '.%').limit(5);
+        for (const row of data || []) {
+          const raw = await pairOpen(session, row.content);
+          if (raw && pairSession === session) {
+            const remember = document.getElementById('key-remember').checked;
+            if (remember) clipRaw = raw;
+            await setKey(raw, remember);
+            closeKey();
+            fetchLatest();
+            return;
+          }
+        }
+      } catch (_) {}
+    }, 2000);
+  }
+
+  // --- Pairing, phone side ---
+
+  let pendingPair = null;
+
+  // A scanned code opens this page with #pair=id.publicKey. The fragment
+  // never reaches a server; it is cleared at once so a reload cannot resend.
+  function checkPairLink() {
+    const m = location.hash.match(/^#pair=([A-Za-z0-9_-]+)\.([A-Za-z0-9_-]+)$/);
+    if (!m) return;
+    history.replaceState(null, '', location.pathname);
+    pendingPair = { id: m[1], pub: m[2] };
+    if (clipRaw) {
+      openSend();
+    } else {
+      openKey();
+      setMsg('key-msg', 'Unlock to send the key to the computer showing the code.', 'dim');
+    }
+  }
+
+  function openSend() {
+    setMsg('send-msg', '', '');
+    document.getElementById('send-btn').disabled = false;
+    document.getElementById('send-overlay').classList.remove('hidden');
+  }
+
+  function closeSend() {
+    pendingPair = null;
+    document.getElementById('send-overlay').classList.add('hidden');
+  }
+
+  async function sendPair() {
+    if (!pendingPair || !clipRaw) return;
+    const btn = document.getElementById('send-btn');
+    btn.disabled = true;
+    try {
+      const content = await pairSeal(clipRaw, pendingPair.id, pendingPair.pub);
+      const expiresAt = new Date(Date.now() + 15 * 60 * 1000).toISOString();
+      const { error } = await sb.from('clips').insert({ content, expires_at: expiresAt, source: 'pair' });
+      if (error) throw error;
+      pendingPair = null;
+      setMsg('send-msg', 'Key sent.', 'ok');
+      setTimeout(closeSend, 1500);
+    } catch (e) {
+      setMsg('send-msg', e.message || 'Error.', 'err');
+      btn.disabled = false;
+    }
+  }
 
   async function saveKey() {
     const phrase = document.getElementById('key-input').value;
@@ -350,20 +568,16 @@
     const btn = document.getElementById('key-save');
     btn.disabled = true; btn.textContent = 'Unlocking…';
     try {
-      const key = await cbDeriveKey(phrase);
-      // A fresh encrypted clip is the only thing that can tell a typo apart
-      // from the real passphrase, so check against one when there is one.
-      const { data } = await sb.from('clips').select('content, source')
-        .like('content', CB_PREFIX + '%')
-        .gt('expires_at', new Date().toISOString())
-        .order('created_at', { ascending: false }).limit(1);
-      if (data && data.length && await cbDecrypt(key, data[0].content, data[0].source) === null) {
-        setMsg('key-msg', 'That passphrase does not open the latest clip.', 'err');
+      const raw = await cbDeriveRaw(phrase);
+      if (rejectedPhrase !== cbNormalize(phrase) && !await keyOpensRecent(await cbImportKey(raw))) {
+        rejectedPhrase = cbNormalize(phrase);
+        setMsg('key-msg', 'That passphrase opens none of the recent clips. Unlock again to use it anyway.', 'err');
       } else {
-        clipKey = key;
-        await cbStoreKey(document.getElementById('key-remember').checked ? key : null);
-        updateKeyBtn();
+        rejectedPhrase = null;
+        clipRaw = raw;
+        await setKey(raw, document.getElementById('key-remember').checked);
         closeKey();
+        if (pendingPair) openSend();
         fetchLatest();
       }
     } catch (e) { setMsg('key-msg', e.message || 'Error.', 'err'); }
@@ -373,6 +587,7 @@
 
   async function forgetKey() {
     clipKey = null;
+    clipRaw = null;
     await cbStoreKey(null);
     updateKeyBtn();
     clearPull();
@@ -383,7 +598,7 @@
   // encrypted clip waits for the passphrase, or null for a row to ignore
   // (a forgery, a replay, a clip under some other passphrase).
   async function openRow(row) {
-    if (!row || !row.content) return null;
+    if (!row || !row.content || row.source === 'pair') return null;
     if (!row.content.startsWith(CB_PREFIX)) return ACCEPT_PLAINTEXT ? { text: row.content } : null;
     if (!clipKey) return { locked: true };
     const text = await cbDecrypt(clipKey, row.content, row.source);
@@ -461,6 +676,7 @@
     try {
       const { data } = await sb.from('clips')
         .select('id, content, source')
+        .or('source.is.null,source.neq.pair')
         .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: false })
         .limit(1).single();
@@ -519,6 +735,7 @@
     try {
       const { data, error } = await sb.from('clips')
         .select('id, content, source')
+        .or('source.is.null,source.neq.pair')
         .gt('expires_at', new Date().toISOString())
         .order('created_at', { ascending: false })
         .limit(1).single();
@@ -659,7 +876,7 @@
   }
 
   document.addEventListener('keydown', e => {
-    if (e.key === 'Escape') closeKey();
+    if (e.key === 'Escape') { closeKey(); closeSend(); }
     if (e.ctrlKey && e.shiftKey && e.key === 'T') { e.preventDefault(); openTheme(); }
     if (e.key === 'Escape') closeTheme();
   });
